@@ -26,15 +26,18 @@ export interface ZoneDefinition {
     };
 }
 
-// Zone Definitions (1-20)
+// Zone Definitions (1-27)
+// Zone 1: All rarities up to godlike
+// Zones 2-8: New high-tier rarities (celestial → infinite)
+// Zones 9+: Original elemental zones (magma onwards)
 export const ZONES: ZoneDefinition[] = [
-    // Tier 1: The Awakening
+    // === TIER 0: STARTER ===
     {
         id: 1,
         name: 'The System',
         theme: 'Digital',
         powerThreshold: 0,
-        newRarity: 'common',
+        newRarity: 'godlike', // Up to godlike
         floorRange: [1, 150],
         bossName: 'System Gatekeeper',
         bossDescription: 'The initial guardian of the system.',
@@ -50,16 +53,165 @@ export const ZONES: ZoneDefinition[] = [
             overlayStyle: 'bg-[url("https://grainy-gradients.vercel.app/noise.svg")] opacity-20'
         }
     },
+    // === TIER 1: HIGH-TIER RARITIES ===
     {
         id: 2,
+        name: 'Celestial Realm',
+        theme: 'Celestial',
+        powerThreshold: 500000,
+        newRarity: 'celestial',
+        floorRange: [151, 200],
+        bossName: 'Celestial Warden',
+        bossDescription: 'Guardian of the starlit heavens.',
+        bossPower: 400000,
+        rewards: { shadowName: 'Star Fragment', titleName: 'Celestial Wanderer', frameName: 'Starlight Frame' },
+        visuals: {
+            primaryColor: '#22d3ee', // Cyan-400
+            secondaryColor: '#67e8f9',
+            textColor: '#ecfeff',
+            borderColor: 'rgba(34, 211, 238, 0.6)',
+            backgroundColor: 'linear-gradient(to bottom, #020617, #164e63)',
+            particleType: 'sparkles',
+            overlayStyle: ''
+        }
+    },
+    {
+        id: 3,
+        name: 'Transcendent Plane',
+        theme: 'Transcendent',
+        powerThreshold: 750000,
+        newRarity: 'transcendent',
+        floorRange: [201, 250],
+        bossName: 'The Ascended One',
+        bossDescription: 'Beyond mortal comprehension.',
+        bossPower: 600000,
+        rewards: { shadowName: 'Ethereal Wisp', titleName: 'Transcended', frameName: 'Ascension Frame' },
+        visuals: {
+            primaryColor: '#ffffff',
+            secondaryColor: '#e2e8f0',
+            textColor: '#ffffff',
+            borderColor: 'rgba(255, 255, 255, 0.7)',
+            backgroundColor: 'linear-gradient(to bottom, #0f172a, #1e293b)',
+            particleType: 'sparkles',
+            overlayStyle: 'brightness-110'
+        }
+    },
+    {
+        id: 4,
+        name: 'Primordial Depths',
+        theme: 'Primordial',
+        powerThreshold: 900000,
+        newRarity: 'primordial',
+        floorRange: [251, 300],
+        bossName: 'Ancient One',
+        bossDescription: 'From before time itself.',
+        bossPower: 750000,
+        rewards: { shadowName: 'Ancient Core', titleName: 'Primordial', frameName: 'Origin Frame' },
+        visuals: {
+            primaryColor: '#f59e0b', // Amber-500
+            secondaryColor: '#d97706',
+            textColor: '#fffbeb',
+            borderColor: 'rgba(245, 158, 11, 0.7)',
+            backgroundColor: 'linear-gradient(to bottom, #1c1917, #451a03)',
+            particleType: 'embers',
+            overlayStyle: 'sepia-[0.3]'
+        }
+    },
+    {
+        id: 5,
+        name: 'Eternal Gardens',
+        theme: 'Eternal',
+        powerThreshold: 1000000,
+        newRarity: 'eternal',
+        floorRange: [301, 350],
+        bossName: 'Keeper of Eternity',
+        bossDescription: 'Time holds no meaning here.',
+        bossPower: 850000,
+        rewards: { shadowName: 'Timeless Echo', titleName: 'Eternal', frameName: 'Infinity Frame' },
+        visuals: {
+            primaryColor: '#10b981', // Emerald-500
+            secondaryColor: '#34d399',
+            textColor: '#ecfdf5',
+            borderColor: 'rgba(16, 185, 129, 0.7)',
+            backgroundColor: 'linear-gradient(to bottom, #022c22, #064e3b)',
+            particleType: 'spores',
+            overlayStyle: ''
+        }
+    },
+    {
+        id: 6,
+        name: 'Divine Sanctum',
+        theme: 'Divine',
+        powerThreshold: 1100000,
+        newRarity: 'divine',
+        floorRange: [351, 400],
+        bossName: 'Seraph of Light',
+        bossDescription: 'Divine radiance incarnate.',
+        bossPower: 950000,
+        rewards: { shadowName: 'Holy Essence', titleName: 'Divine', frameName: 'Sacred Frame' },
+        visuals: {
+            primaryColor: '#fcd34d', // Amber-300
+            secondaryColor: '#fef3c7',
+            textColor: '#fffbeb',
+            borderColor: 'rgba(252, 211, 77, 0.8)',
+            backgroundColor: 'linear-gradient(to bottom, #fffbeb, #fef3c7)',
+            particleType: 'sparkles',
+            overlayStyle: 'brightness-125'
+        }
+    },
+    {
+        id: 7,
+        name: 'Cosmic Expanse',
+        theme: 'Cosmic',
+        powerThreshold: 1150000,
+        newRarity: 'cosmic',
+        floorRange: [401, 450],
+        bossName: 'Cosmic Entity',
+        bossDescription: 'The vastness of the universe personified.',
+        bossPower: 1000000,
+        rewards: { shadowName: 'Starborn', titleName: 'Cosmic', frameName: 'Galaxy Frame' },
+        visuals: {
+            primaryColor: '#6366f1', // Indigo-500
+            secondaryColor: '#818cf8',
+            textColor: '#eef2ff',
+            borderColor: 'rgba(99, 102, 241, 0.8)',
+            backgroundColor: 'linear-gradient(to bottom, #0f0a2e, #1e1b4b)',
+            particleType: 'sparkles',
+            overlayStyle: ''
+        }
+    },
+    {
+        id: 8,
+        name: 'Infinite Horizon',
+        theme: 'Infinite',
+        powerThreshold: 1200000,
+        newRarity: 'infinite',
+        floorRange: [451, 500],
+        bossName: 'The Unbounded',
+        bossDescription: 'Without limits, without end.',
+        bossPower: 1050000,
+        rewards: { shadowName: 'Infinity Shard', titleName: 'Infinite', frameName: 'Boundless Frame' },
+        visuals: {
+            primaryColor: '#ffffff',
+            secondaryColor: '#ffffff',
+            textColor: '#ffffff',
+            borderColor: 'rgba(255, 255, 255, 1)',
+            backgroundColor: 'linear-gradient(to right, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff)',
+            particleType: 'sparkles',
+            overlayStyle: ''
+        }
+    },
+    // === TIER 2: ELEMENTAL ZONES (Shifted +7) ===
+    {
+        id: 9,
         name: 'Volcanic Lands',
         theme: 'Fire',
         powerThreshold: 1250000,
         newRarity: 'magma',
-        floorRange: [151, 300],
+        floorRange: [501, 650],
         bossName: 'Magma Colossus',
         bossDescription: 'A giant forged from living magma.',
-        bossPower: 1000000,
+        bossPower: 1100000,
         rewards: { shadowName: 'Magma Core', titleName: 'Volcanic Conqueror', frameName: 'Obsidian Frame' },
         visuals: {
             primaryColor: '#ef4444', // Red-500
@@ -68,16 +220,16 @@ export const ZONES: ZoneDefinition[] = [
             borderColor: 'rgba(239, 68, 68, 0.6)',
             backgroundColor: 'linear-gradient(to bottom, #1a0505, #450a0a)',
             particleType: 'embers',
-            overlayStyle: 'bg-[url("/assets/textures/cracked-earth.png")] opacity-30 mix-blend-overlay' // Placeholder
+            overlayStyle: 'bg-[url("/assets/textures/cracked-earth.png")] opacity-30 mix-blend-overlay'
         }
     },
     {
-        id: 3,
+        id: 10,
         name: 'Abyssal Ocean',
         theme: 'Water',
         powerThreshold: 2500000,
         newRarity: 'abyssal',
-        floorRange: [301, 450],
+        floorRange: [651, 800],
         bossName: 'Leviathan of the Deep',
         bossDescription: 'A terror from the crushing depths.',
         bossPower: 2000000,
@@ -93,12 +245,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 4,
+        id: 11,
         name: 'Verdant Jungle',
         theme: 'Nature',
         powerThreshold: 5000000,
         newRarity: 'verdant',
-        floorRange: [451, 600],
+        floorRange: [801, 950],
         bossName: 'Ancient Treant',
         bossDescription: 'The forest itself rises against you.',
         bossPower: 4000000,
@@ -114,12 +266,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 5,
+        id: 12,
         name: 'Storm Peaks',
         theme: 'Lightning',
         powerThreshold: 10000000,
         newRarity: 'storm',
-        floorRange: [601, 750],
+        floorRange: [951, 1100],
         bossName: 'Thunderbird',
         bossDescription: 'A creature of pure electricity.',
         bossPower: 8000000,
@@ -136,12 +288,12 @@ export const ZONES: ZoneDefinition[] = [
     },
     // Tier 2: The Cosmos
     {
-        id: 6,
+        id: 13,
         name: 'Lunar Surface',
         theme: 'Moon',
         powerThreshold: 20000000,
         newRarity: 'lunar',
-        floorRange: [751, 900],
+        floorRange: [1101, 1250],
         bossName: 'Moon Walker',
         bossDescription: 'A silent sentinel of the moon.',
         bossPower: 16000000,
@@ -157,12 +309,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 7,
+        id: 14,
         name: 'Solar Flare',
         theme: 'Sun',
         powerThreshold: 40000000,
         newRarity: 'solar',
-        floorRange: [901, 1050],
+        floorRange: [1251, 1400],
         bossName: 'Sun God',
         bossDescription: 'Radiance incarnate.',
         bossPower: 32000000,
@@ -178,12 +330,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 8,
+        id: 15,
         name: 'Nebula Cloud',
         theme: 'Nebula',
         powerThreshold: 80000000,
         newRarity: 'nebula',
-        floorRange: [1051, 1200],
+        floorRange: [1401, 1550],
         bossName: 'Nebula Dragon',
         bossDescription: 'Born from the dust of stars.',
         bossPower: 64000000,
@@ -199,12 +351,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 9,
+        id: 16,
         name: 'Black Hole',
         theme: 'Gravity',
         powerThreshold: 160000000,
         newRarity: 'singularity',
-        floorRange: [1201, 1350],
+        floorRange: [1551, 1700],
         bossName: 'Event Horizon',
         bossDescription: 'Nothing escapes.',
         bossPower: 128000000,
@@ -220,12 +372,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 10,
+        id: 17,
         name: 'Supernova',
         theme: 'Explosion',
         powerThreshold: 320000000,
         newRarity: 'nova',
-        floorRange: [1351, 1500],
+        floorRange: [1701, 1850],
         bossName: 'Supernova Remnant',
         bossDescription: 'The explosive end of a star.',
         bossPower: 256000000,
@@ -242,12 +394,12 @@ export const ZONES: ZoneDefinition[] = [
     },
     // Tier 3: The Metaphysical
     {
-        id: 11,
+        id: 18,
         name: 'Cyber Void',
         theme: 'Glitch',
         powerThreshold: 640000000,
         newRarity: 'cyber',
-        floorRange: [1501, 1650],
+        floorRange: [1851, 2000],
         bossName: 'Mainframe',
         bossDescription: 'The core of the simulation.',
         bossPower: 512000000,
@@ -263,12 +415,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 12,
+        id: 19,
         name: 'Crystal Realm',
         theme: 'Crystal',
         powerThreshold: 1280000000,
         newRarity: 'crystal',
-        floorRange: [1651, 1800],
+        floorRange: [2001, 2150],
         bossName: 'Crystal Golem',
         bossDescription: 'Perfection in geometric form.',
         bossPower: 1024000000,
@@ -284,12 +436,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 13,
+        id: 20,
         name: 'Spirit World',
         theme: 'Spirit',
         powerThreshold: 2560000000,
         newRarity: 'ethereal',
-        floorRange: [1801, 1950],
+        floorRange: [2151, 2300],
         bossName: 'Phantom King',
         bossDescription: 'Ruler of the departed.',
         bossPower: 2048000000,
@@ -305,12 +457,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 14,
+        id: 21,
         name: 'Blood Moon',
         theme: 'Vampire',
         powerThreshold: 5120000000,
         newRarity: 'crimson',
-        floorRange: [1951, 2100],
+        floorRange: [2301, 2450],
         bossName: 'Vampire Lord',
         bossDescription: 'Eternal thirst.',
         bossPower: 4096000000,
@@ -326,12 +478,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 15,
+        id: 22,
         name: 'Golden Age',
         theme: 'Divine',
         powerThreshold: 10240000000,
         newRarity: 'heavenly',
-        floorRange: [2101, 2250],
+        floorRange: [2451, 2600],
         bossName: 'Seraphim',
         bossDescription: 'Be not afraid.',
         bossPower: 8192000000,
@@ -348,12 +500,12 @@ export const ZONES: ZoneDefinition[] = [
     },
     // Tier 4: The Absolute
     {
-        id: 16,
+        id: 23,
         name: 'Antimatter',
         theme: 'Inversion',
         powerThreshold: 20480000000,
         newRarity: 'antimatter',
-        floorRange: [2251, 2400],
+        floorRange: [2601, 2750],
         bossName: 'Anti-Monitor',
         bossDescription: 'The opposite of existence.',
         bossPower: 16384000000,
@@ -369,12 +521,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 17,
+        id: 24,
         name: 'Time Rift',
         theme: 'Time',
         powerThreshold: 40960000000,
         newRarity: 'temporal',
-        floorRange: [2401, 2550],
+        floorRange: [2751, 2900],
         bossName: 'Chronos',
         bossDescription: 'Time is irrelevant.',
         bossPower: 32768000000,
@@ -390,12 +542,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 18,
+        id: 25,
         name: 'Chaos Dimension',
         theme: 'Chaos',
         powerThreshold: 81920000000,
         newRarity: 'chaotic',
-        floorRange: [2551, 2700],
+        floorRange: [2901, 3050],
         bossName: 'Shoggoth',
         bossDescription: 'Formless fear.',
         bossPower: 65536000000,
@@ -411,12 +563,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 19,
+        id: 26,
         name: 'The Void',
         theme: 'Void',
         powerThreshold: 163840000000,
         newRarity: 'void',
-        floorRange: [2701, 2850],
+        floorRange: [3051, 3200],
         bossName: 'The Nothing',
         bossDescription: '...',
         bossPower: 131072000000,
@@ -432,12 +584,12 @@ export const ZONES: ZoneDefinition[] = [
         }
     },
     {
-        id: 20,
+        id: 27,
         name: 'Singularity',
         theme: 'End',
         powerThreshold: 327680000000,
         newRarity: 'omega',
-        floorRange: [2851, 3000],
+        floorRange: [3201, 3350],
         bossName: 'The One',
         bossDescription: 'All is one.',
         bossPower: 262144000000,
@@ -456,14 +608,14 @@ export const ZONES: ZoneDefinition[] = [
 
 // Get Zone Info
 export const getZoneInfo = (zoneId: number): ZoneDefinition => {
-    // For zones beyond 20, we can loop or procedurally generate, but for now let's clamp or loop
-    if (zoneId > 20) {
+    // For zones beyond 27, we can loop or procedurally generate
+    if (zoneId > 27) {
         // Simple loop for now to avoid crashes
-        const baseZone = ZONES[(zoneId - 1) % 20];
+        const baseZone = ZONES[(zoneId - 1) % 27];
         return {
             ...baseZone,
             id: zoneId,
-            name: `${baseZone.name} (Loop ${Math.ceil(zoneId / 20)})`,
+            name: `${baseZone.name} (Loop ${Math.ceil(zoneId / 27)})`,
             powerThreshold: baseZone.powerThreshold * Math.pow(2, zoneId - baseZone.id)
         };
     }

@@ -280,7 +280,7 @@ const rarityContainerAnimation: Partial<Record<string, string>> = {
     primordial: 'animate-pulse-slow',
     eternal: 'animate-float',
     divine: 'animate-pulse',
-    cosmic: 'animate-spin-slow',
+    cosmic: 'animate-pulse',
     infinite: 'animate-pulse',
 };
 
