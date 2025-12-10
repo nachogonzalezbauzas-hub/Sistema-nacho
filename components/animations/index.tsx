@@ -21,16 +21,16 @@ type AnimationEvent =
     | { type: 'shards_gain'; shardsGained: number; totalShards: number };
 
 // Priority order for animations (lower = higher priority, shows first)
-// Order: Level Up > Equipment > Cosmetics > Shards > XP > Stats > Achievements > Batch
+// Order: Stat > XP > Level Up > Shards > Equipment > Title > Frame
 const ANIMATION_PRIORITY: Record<AnimationEvent['type'], number> = {
-    'level_up': 1,          // Most important - shows first
-    'equipment_reward': 2,  // New gear is exciting
-    'cosmetic_unlock': 3,   // Titles/frames unlocked
-    'shards_gain': 4,       // Currency gained
-    'xp_gain': 5,           // XP bar animation
-    'stat_increase': 6,     // Individual stat gains
-    'achievement': 7,       // Achievement popups
-    'cosmetic_batch': 8,    // Batch summary last
+    'stat_increase': 1,     // First: Stats you gained
+    'xp_gain': 2,           // Second: XP bar animation
+    'level_up': 3,          // Third: Level up celebration
+    'shards_gain': 4,       // Fourth: Currency gained
+    'equipment_reward': 5,  // Fifth: New gear
+    'cosmetic_unlock': 6,   // Sixth: Titles/frames unlocked (sorted internally)
+    'achievement': 7,       // Seventh: Achievement popups
+    'cosmetic_batch': 8,    // Last: Batch summary
 };
 
 interface AnimationQueueContextType {
@@ -174,11 +174,22 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
     // Count remaining animations
     const remainingCount = queue.length;
 
-    // Sort queue by priority helper
+    // Sort queue by priority helper - titles before frames within cosmetics
     const sortByPriority = (events: AnimationEvent[]): AnimationEvent[] => {
-        return [...events].sort((a, b) =>
-            (ANIMATION_PRIORITY[a.type] || 99) - (ANIMATION_PRIORITY[b.type] || 99)
-        );
+        return [...events].sort((a, b) => {
+            const priorityA = ANIMATION_PRIORITY[a.type] || 99;
+            const priorityB = ANIMATION_PRIORITY[b.type] || 99;
+
+            // If same priority and both are cosmetic_unlock, sort titles before frames
+            if (priorityA === priorityB && a.type === 'cosmetic_unlock' && b.type === 'cosmetic_unlock') {
+                const typeA = (a as any).cosmeticType;
+                const typeB = (b as any).cosmeticType;
+                // title = 0, frame = 1 (titles first)
+                return (typeA === 'title' ? 0 : 1) - (typeB === 'title' ? 0 : 1);
+            }
+
+            return priorityA - priorityB;
+        });
     };
 
     // Process queue - always take the highest priority item
