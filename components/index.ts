@@ -18,3 +18,4 @@ export * from './ui/Stats';
 export * from './ui/Templates';
 export * from './ui/Titles';
 export * from './ui/UnifiedRewardOverlay';
+export * from './animations/UniversalRewardReveal';

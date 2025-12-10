@@ -8,7 +8,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { DEFAULT_SEASON, DEFAULT_SEASON_PROGRESS } from '@/store/defaults';
 import { MainLayout, Tab } from '@/components/layout/MainLayout';
 import { AnimationQueueProvider } from '@/components/animations';
-import { useStatChangeAnimations, useCosmeticUnlockAnimations } from '@/components/animations/useAnimationHooks';
+import { useStatChangeAnimations, useCosmeticUnlockAnimations, useEquipmentRewardAnimations } from '@/components/animations/useAnimationHooks';
 import { useAudioEffects } from '@/utils/useAudioEffects';
 import { audioManager } from '@/utils/audioManager';
 import { VoiceCommander } from '@/components/layout/VoiceCommander';
@@ -44,8 +44,9 @@ import { ZoneCompleteSummary } from '@/components/zone/ZoneCompleteSummary';
 
 // Animation and Audio observer component - must be inside AnimationQueueProvider
 const AnimationObserver = () => {
-  // useStatChangeAnimations();
-  // useCosmeticUnlockAnimations();
+  // useStatChangeAnimations(); // Disabled: Can be overwhelming
+  useCosmeticUnlockAnimations(); // Enabled: Shows beautiful title/frame reveals
+  useEquipmentRewardAnimations(); // Enabled: Shows beautiful equipment reveals
   useAudioEffects(); // Audio SFX triggers
   return null;
 };

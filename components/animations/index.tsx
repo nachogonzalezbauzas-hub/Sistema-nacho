@@ -4,7 +4,8 @@ import { StatIncreaseCelebration } from './StatIncreaseCelebration';
 import { CosmeticUnlockOverlay } from './CosmeticUnlockOverlay';
 import { AchievementPopup } from './AchievementPopup';
 import { LevelUpCelebration } from './LevelUpCelebration';
-import { StatType, Title, AvatarFrame } from '@/types';
+import { UniversalRewardReveal } from './UniversalRewardReveal';
+import { StatType, Title, AvatarFrame, Equipment } from '@/types';
 import { X, Crown, Image, Sparkles } from 'lucide-react';
 
 // Animation event types
@@ -13,7 +14,8 @@ type AnimationEvent =
     | { type: 'cosmetic_unlock'; cosmeticType: 'title' | 'frame' | 'avatar'; cosmetic: Title | AvatarFrame | any }
     | { type: 'cosmetic_batch'; items: Array<{ cosmeticType: 'title' | 'frame'; cosmetic: any }> }
     | { type: 'achievement'; title: string; description?: string; icon?: React.ReactNode; achievementType?: 'achievement' | 'milestone' | 'quest' }
-    | { type: 'level_up'; newLevel: number };
+    | { type: 'level_up'; newLevel: number }
+    | { type: 'equipment_reward'; equipment: Equipment };
 
 interface AnimationQueueContextType {
     enqueueAnimation: (event: AnimationEvent) => void;
@@ -251,13 +253,29 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
                 />
             )}
 
-            {/* Cosmetic Unlock Animation (individual) */}
+            {/* Cosmetic Unlock Animation (individual) - Using new Universal Reveal */}
             {currentEvent?.type === 'cosmetic_unlock' && (
-                <CosmeticUnlockOverlay
+                <UniversalRewardReveal
                     isOpen={true}
-                    cosmeticType={currentEvent.cosmeticType}
-                    cosmetic={currentEvent.cosmetic}
                     onClose={handleAnimationComplete}
+                    reward={
+                        currentEvent.cosmeticType === 'title'
+                            ? { type: 'title', rarity: currentEvent.cosmetic.rarity || 'rare', data: currentEvent.cosmetic }
+                            : { type: 'frame', rarity: currentEvent.cosmetic.rarity || 'rare', data: currentEvent.cosmetic }
+                    }
+                />
+            )}
+
+            {/* Equipment Reward Animation */}
+            {currentEvent?.type === 'equipment_reward' && (
+                <UniversalRewardReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
+                    reward={{
+                        type: 'equipment',
+                        rarity: currentEvent.equipment.rarity,
+                        data: currentEvent.equipment
+                    }}
                 />
             )}
 
@@ -271,15 +289,20 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
                 )}
             </AnimatePresence>
 
-            {/* Achievement Popup */}
+            {/* Achievement Popup - Using Universal Reveal */}
             {currentEvent?.type === 'achievement' && (
-                <AchievementPopup
-                    isVisible={true}
-                    title={currentEvent.title}
-                    description={currentEvent.description}
-                    icon={currentEvent.icon}
-                    type={currentEvent.achievementType || 'achievement'}
-                    onComplete={handleAnimationComplete}
+                <UniversalRewardReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
+                    reward={{
+                        type: 'achievement',
+                        rarity: 'legendary',
+                        data: {
+                            name: currentEvent.title,
+                            description: currentEvent.description || '',
+                            icon: currentEvent.icon
+                        }
+                    }}
                 />
             )}
         </AnimationQueueContext.Provider>
@@ -292,3 +315,4 @@ export { CosmeticUnlockOverlay } from './CosmeticUnlockOverlay';
 export { AchievementPopup } from './AchievementPopup';
 export { MissionCompleteEffect } from './MissionCompleteEffect';
 export { LevelUpCelebration } from './LevelUpCelebration';
+export { UniversalRewardReveal } from './UniversalRewardReveal';

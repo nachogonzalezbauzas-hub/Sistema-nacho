@@ -171,3 +171,50 @@ export const useCosmeticUnlockAnimations = () => {
         prevFramesRef.current = [...currentFrames];
     }, [titlesStr, framesStr, enqueueAnimation]);
 };
+
+/**
+ * Hook that watches for new equipment in inventory and triggers animations.
+ */
+export const useEquipmentRewardAnimations = () => {
+    const { state } = useStore();
+    const { enqueueAnimation } = useAnimationQueue();
+
+    const isFirstLoadRef = useRef(true);
+    const prevInventoryIdsRef = useRef<string[]>([]);
+
+    // Stringify for proper comparison
+    const inventoryStr = JSON.stringify((state?.inventory || []).map(e => e.id));
+
+    useEffect(() => {
+        if (!state?.inventory) return;
+
+        const currentIds = state.inventory.map(e => e.id);
+
+        // Skip first load
+        if (isFirstLoadRef.current) {
+            isFirstLoadRef.current = false;
+            prevInventoryIdsRef.current = [...currentIds];
+            return;
+        }
+
+        // Check for new equipment
+        const newEquipmentIds = currentIds.filter(id => !prevInventoryIdsRef.current.includes(id));
+
+        // Only show animation for up to 3 items to avoid spam
+        const itemsToAnimate = newEquipmentIds.slice(0, 3);
+
+        for (const equipId of itemsToAnimate) {
+            const equipment = state.inventory.find(e => e.id === equipId);
+            if (equipment) {
+                console.log('[Animation] Enqueuing equipment reward:', equipment.name);
+                enqueueAnimation({
+                    type: 'equipment_reward',
+                    equipment: equipment,
+                });
+            }
+        }
+
+        // Update ref with current values
+        prevInventoryIdsRef.current = [...currentIds];
+    }, [inventoryStr, enqueueAnimation]);
+};
