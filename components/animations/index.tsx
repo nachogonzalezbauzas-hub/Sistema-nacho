@@ -204,8 +204,9 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
         }
     }, [queue, currentEvent]);
 
-    // Track which cosmetic IDs we've already added to prevent duplicates
-    const [shownCosmeticIds, setShownCosmeticIds] = useState<Set<string>>(new Set());
+    // CRITICAL FIX: Use useRef instead of useState to prevent infinite render loops
+    // We don't need UI updates when this changes, just internal tracking
+    const shownCosmeticIdsRef = React.useRef<Set<string>>(new Set());
 
     const enqueueAnimation = useCallback((event: AnimationEvent) => {
         // If it's a cosmetic unlock, check for duplicates and collect for potential batching
@@ -213,13 +214,15 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
             const cosmeticId = event.cosmetic?.id || event.cosmetic?.name;
 
             // DEDUPLICATION: Skip if we've already shown this cosmetic
-            if (shownCosmeticIds.has(cosmeticId)) {
+            if (cosmeticId && shownCosmeticIdsRef.current.has(cosmeticId)) {
                 console.log('[Animation] Skipping duplicate cosmetic:', cosmeticId);
                 return;
             }
 
-            // Mark as shown
-            setShownCosmeticIds(prev => new Set(prev).add(cosmeticId));
+            // Mark as shown using Ref
+            if (cosmeticId) {
+                shownCosmeticIdsRef.current.add(cosmeticId);
+            }
 
             // Also check if already in pending
             setPendingCosmetics(prev => {
@@ -262,7 +265,7 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
             // Add to queue and sort by priority
             setQueue(prev => sortByPriority([...prev, event]));
         }
-    }, [batchTimeout, shownCosmeticIds]);
+    }, [batchTimeout]); // shownCosmeticIds removed from dependencies
 
     const clearQueue = useCallback(() => {
         setQueue([]);
