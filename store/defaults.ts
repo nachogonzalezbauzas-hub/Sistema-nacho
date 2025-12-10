@@ -129,7 +129,6 @@ export const INITIAL_STATE: AppState = {
     questPoints: 0,
     questShopPurchases: [],
     questStreak: 0,
-    questStreak: 0,
     questHistory: [],
     dailyShop: {
         date: null,

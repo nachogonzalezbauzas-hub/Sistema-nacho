@@ -156,8 +156,12 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                     if (unlockedFrameId && !nextState.stats.unlockedFrameIds.includes(unlockedFrameId as any)) {
                         nextState.stats.unlockedFrameIds.push(unlockedFrameId as any);
                         const frameDef = AVATAR_FRAMES?.find(f => f.id === unlockedFrameId);
+                        console.log('[DEBUG] Frame unlock attempt:', unlockedFrameId, 'Found in AVATAR_FRAMES:', !!frameDef);
                         if (frameDef) {
                             nextState.logs.unshift(createLog('Sistema', 'Recompensa de Mazmorra', `Marco Desbloqueado: ${frameDef.name}`));
+                        } else {
+                            // Frame ID not found in static list - log anyway for debugging
+                            nextState.logs.unshift(createLog('Sistema', 'Sistema', `Marco añadido (ID: ${unlockedFrameId})`));
                         }
                     }
 
