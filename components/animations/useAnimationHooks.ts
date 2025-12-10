@@ -107,6 +107,7 @@ export const useStatChangeAnimations = () => {
 
 /**
  * Hook that watches for cosmetic unlocks and triggers animations.
+ * Uses a Set to track already-animated IDs to prevent duplicates.
  */
 export const useCosmeticUnlockAnimations = () => {
     const { state } = useStore();
@@ -115,6 +116,9 @@ export const useCosmeticUnlockAnimations = () => {
     const isFirstLoadRef = useRef(true);
     const prevTitlesRef = useRef<string[]>([]);
     const prevFramesRef = useRef<string[]>([]);
+    // Track which IDs we've already animated to prevent duplicates
+    const animatedTitlesRef = useRef<Set<string>>(new Set());
+    const animatedFramesRef = useRef<Set<string>>(new Set());
 
     // Stringify for proper comparison
     const titlesStr = JSON.stringify(state?.stats?.unlockedTitleIds || []);
@@ -131,17 +135,22 @@ export const useCosmeticUnlockAnimations = () => {
             isFirstLoadRef.current = false;
             prevTitlesRef.current = [...currentTitles];
             prevFramesRef.current = [...currentFrames];
+            // Mark all initial items as "already animated" to prevent showing them
+            currentTitles.forEach(id => animatedTitlesRef.current.add(id));
+            currentFrames.forEach(id => animatedFramesRef.current.add(id));
             return;
         }
 
-        // Check for new titles
-        const newTitles = currentTitles.filter(id => !prevTitlesRef.current.includes(id));
-        console.log('[Animation] Checking titles:', { prev: prevTitlesRef.current.length, current: currentTitles.length, new: newTitles.length });
+        // Check for new titles (not in prev AND not already animated)
+        const newTitles = currentTitles.filter(id =>
+            !prevTitlesRef.current.includes(id) && !animatedTitlesRef.current.has(id)
+        );
 
         for (const titleId of newTitles) {
             const title = TITLES.find(t => t.id === titleId);
             if (title) {
                 console.log('[Animation] Enqueuing title unlock:', title.name);
+                animatedTitlesRef.current.add(titleId); // Mark as animated
                 enqueueAnimation({
                     type: 'cosmetic_unlock',
                     cosmeticType: 'title',
@@ -150,14 +159,16 @@ export const useCosmeticUnlockAnimations = () => {
             }
         }
 
-        // Check for new frames
-        const newFrames = currentFrames.filter(id => !prevFramesRef.current.includes(id));
-        console.log('[Animation] Checking frames:', { prev: prevFramesRef.current.length, current: currentFrames.length, new: newFrames.length });
+        // Check for new frames (not in prev AND not already animated)
+        const newFrames = currentFrames.filter(id =>
+            !prevFramesRef.current.includes(id) && !animatedFramesRef.current.has(id)
+        );
 
         for (const frameId of newFrames) {
             const frame = AVATAR_FRAMES.find(f => f.id === frameId);
             if (frame) {
                 console.log('[Animation] Enqueuing frame unlock:', frame.name);
+                animatedFramesRef.current.add(frameId); // Mark as animated
                 enqueueAnimation({
                     type: 'cosmetic_unlock',
                     cosmeticType: 'frame',

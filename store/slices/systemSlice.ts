@@ -38,12 +38,19 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
 
         // If today is different from last rotation date
         if (state.dailyShop.date !== currentDateString) {
-            // Randomly select 3 titles
-            const shuffledTitles = [...SHOP_TITLES].sort(() => 0.5 - Math.random());
+            // Get player's unlocked rarities (default to basic if not set)
+            const unlockedRarities = state.zone?.unlockedRarities || ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+
+            // Filter shop items to only include those matching unlocked rarities
+            const availableTitles = SHOP_TITLES.filter(t => unlockedRarities.includes(t.rarity));
+            const availableFrames = SHOP_FRAMES.filter(f => unlockedRarities.includes(f.rarity));
+
+            // Randomly select 3 titles from available ones
+            const shuffledTitles = [...availableTitles].sort(() => 0.5 - Math.random());
             const selectedTitles = shuffledTitles.slice(0, 3).map(t => t.id);
 
-            // Randomly select 3 frames
-            const shuffledFrames = [...SHOP_FRAMES].sort(() => 0.5 - Math.random());
+            // Randomly select 3 frames from available ones
+            const shuffledFrames = [...availableFrames].sort(() => 0.5 - Math.random());
             const selectedFrames = shuffledFrames.slice(0, 3).map(f => f.id);
 
             set((store) => ({
