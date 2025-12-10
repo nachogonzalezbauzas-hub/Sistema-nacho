@@ -44,54 +44,56 @@ const RARITY_WEIGHTS: Record<ItemRarity, number> = {
 };
 
 // Stat Ranges by Rarity
+// REBALANCED: Equipment now provides small bonuses, missions are main stat source
+// A mission gives +1 stat, so equipment should only give a modest boost
 const BASE_STAT_RANGES: Record<ItemRarity, [number, number]> = {
-    common: [1, 5],
-    uncommon: [5, 10],
-    rare: [10, 15],
-    epic: [15, 25],
-    legendary: [25, 40],
-    mythic: [40, 60],
-    godlike: [60, 90],
-    celestial: [90, 120],            // Floor 120
-    transcendent: [120, 160],        // Floor 100? Mapping is loose
-    primordial: [160, 200],          // Floor 140
+    common: [1, 2],         // +1-2 per stat
+    uncommon: [2, 3],       // +2-3 per stat  
+    rare: [3, 5],           // +3-5 per stat (was 10-15!)
+    epic: [5, 7],           // +5-7 per stat (was 15-25!)
+    legendary: [7, 10],     // +7-10 per stat (was 25-40!)
+    mythic: [10, 14],       // +10-14 per stat
+    godlike: [14, 18],      // +14-18 per stat
+    celestial: [18, 24],    // Floor 120
+    transcendent: [24, 30], // Floor 100
+    primordial: [30, 38],   // Floor 140
 
     // Zone 1: Magma (Floor 150)
-    magma: [200, 250],
+    magma: [38, 46],
 
     // Zone 2: Abyssal (Floor 200)
-    abyssal: [250, 320],
+    abyssal: [46, 56],
 
     // High Tier Generics
-    eternal: [320, 380],             // Floor 220
-    divine: [380, 450],              // Floor 240
+    eternal: [56, 66],       // Floor 220
+    divine: [66, 78],        // Floor 240
 
     // Zone 3: Verdant (Floor 250)
-    verdant: [450, 520],
+    verdant: [78, 90],
 
     // Zone 4: Storm (Floor 300)
-    storm: [520, 600],
+    storm: [90, 105],
 
-    cosmic: [600, 700],              // Floor 320
-    infinite: [700, 800],            // Floor 340
+    cosmic: [105, 120],      // Floor 320
+    infinite: [120, 140],    // Floor 340
 
     // Zone 5+: High End
-    lunar: [800, 950],               // Floor 350
-    solar: [950, 1100],              // Floor 400
-    nebula: [1100, 1300],            // Floor 450
-    singularity: [1300, 1500],       // Floor 500
-    nova: [1500, 1800],              // Floor 550
+    lunar: [140, 160],       // Floor 350
+    solar: [160, 185],       // Floor 400
+    nebula: [185, 215],      // Floor 450
+    singularity: [215, 250], // Floor 500
+    nova: [250, 290],        // Floor 550
 
-    cyber: [1800, 2100],             // Floor 600
-    crystal: [2100, 2500],           // Floor 650
-    ethereal: [2500, 3000],          // Floor 700
-    crimson: [3000, 3600],           // Floor 750
-    heavenly: [3600, 4200],          // Floor 800
-    antimatter: [4200, 5000],        // Floor 850
-    temporal: [5000, 6000],          // Floor 900
-    chaotic: [6000, 7500],           // Floor 950
-    void: [7500, 9000],              // Floor 1000
-    omega: [9000, 12000]             // Floor 1100+
+    cyber: [290, 340],       // Floor 600
+    crystal: [340, 400],     // Floor 650
+    ethereal: [400, 470],    // Floor 700
+    crimson: [470, 550],     // Floor 750
+    heavenly: [550, 650],    // Floor 800
+    antimatter: [650, 770],  // Floor 850
+    temporal: [770, 900],    // Floor 900
+    chaotic: [900, 1050],    // Floor 950
+    void: [1050, 1250],      // Floor 1000
+    omega: [1250, 1500]      // Floor 1100+
 };
 
 const STAT_TYPES: StatType[] = ['Strength', 'Vitality', 'Agility', 'Intelligence', 'Fortune', 'Metabolism'];
