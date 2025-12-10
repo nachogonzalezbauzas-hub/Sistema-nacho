@@ -115,62 +115,85 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
 
     manualCompleteQuest: (questId) => {
         set((store) => {
-            const prev = store.state;
-            const quest = prev.dailyQuests.find(q => q.id === questId);
-            if (!quest || quest.completed) return {};
+            try {
+                const prev = store.state;
+                // Use map for cleaner immutable update
+                const updatedQuests = prev.dailyQuests.map(q =>
+                    q.id === questId
+                        ? { ...q, completed: true, condition: { ...q.condition, current: q.condition.target } }
+                        : q
+                );
 
-            // 1. Mark as completed
-            const updatedQuests = prev.dailyQuests.map(q =>
-                q.id === questId
-                    ? { ...q, completed: true, condition: { ...q.condition, current: q.condition.target } }
-                    : q
-            );
+                const quest = prev.dailyQuests.find(q => q.id === questId);
 
-            // 2. Grant Logic (XP + Rewards)
-            let nextState = { ...prev };
-            // XP Reward (Base 50 + Level Scaling)
-            const levelMultiplier = 1 + (prev.stats.level * 0.1);
-            const xpReward = Math.floor(50 * levelMultiplier);
-
-            // Add Reward to Queue
-            if (!nextState.rewardQueue) nextState.rewardQueue = [];
-            nextState.rewardQueue.push({
-                id: `daily_${quest.id}_${Date.now()}`,
-                type: 'currency', // Or generic 'xp' type if supported, but typically missions give XP directly
-                name: quest.title,
-                rarity: 'common',
-                icon: 'Zap',
-                value: xpReward,
-                description: `Reward for: ${quest.title}`
-            });
-
-            // Apply XP
-            const { stats: newStats, levelUp } = calculateLevelUp(prev.stats, xpReward);
-
-            if (levelUp) {
-                // Add Level Up Reward
-                nextState.rewardQueue.push({
-                    id: `levelup_${newStats.level}`,
-                    type: 'levelup',
-                    name: 'Level Up!',
-                    // level: newStats.level, // Removed invalid property
-                    icon: 'ArrowUpCircle',
-                    value: newStats.level // Pass level as value instead
-                });
-            }
-
-            // Log
-            const logs = [...prev.logs];
-            logs.unshift(createLog('Sistema', 'Daily Quest', `Completada: ${quest.title} (+${xpReward} XP)`));
-
-            return {
-                state: {
-                    ...nextState,
-                    dailyQuests: updatedQuests,
-                    stats: newStats,
-                    logs
+                if (!quest) {
+                    console.error("Quest not found:", questId);
+                    return {};
                 }
-            };
+
+                if (quest.completed) {
+                    console.warn("Quest already completed:", quest.title);
+                    return {};
+                }
+
+                // 2. Grant Logic (XP + Rewards)
+                let nextState = { ...prev };
+
+                // XP Reward (Base 50 + Level Scaling)
+                // Ensure stats exists
+                if (!prev.stats) {
+                    console.error("Stats missing in manualCompleteQuest");
+                    return {};
+                }
+
+                const levelMultiplier = 1 + (prev.stats.level * 0.1);
+                const xpReward = Math.floor(50 * levelMultiplier);
+
+                // Add Reward to Queue
+                const newRewardQueue = nextState.rewardQueue ? [...nextState.rewardQueue] : [];
+                newRewardQueue.push({
+                    id: `daily_${quest.id}_${Date.now()}`,
+                    type: 'currency',
+                    name: quest.title,
+                    rarity: 'common',
+                    icon: 'Zap',
+                    value: xpReward,
+                    description: `Reward for: ${quest.title}`
+                });
+
+                // Apply XP
+                // Check if calculateLevelUp is available/working
+                const { stats: newStats, levelUp } = calculateLevelUp(prev.stats, xpReward);
+
+                if (levelUp) {
+                    newRewardQueue.push({
+                        id: `levelup_${newStats.level}`,
+                        type: 'levelup',
+                        name: 'Level Up!',
+                        icon: 'ArrowUpCircle',
+                        value: newStats.level
+                    });
+                }
+
+                // Log
+                const newLogs = [...prev.logs];
+                newLogs.unshift(createLog('Sistema', 'Daily Quest', `Completada: ${quest.title} (+${xpReward} XP)`));
+
+                // IMPORTANT: Assign updated quests to nextState
+                nextState.dailyQuests = updatedQuests;
+                nextState.stats = newStats;
+                nextState.logs = newLogs;
+                nextState.rewardQueue = newRewardQueue;
+
+                // console.log("Manual Quest Complete Success:", quest.title);
+                return { state: nextState };
+
+            } catch (error) {
+                console.error("CRITICAL ERROR in manualCompleteQuest:", error);
+                // Return unchanged state on error to prevent corruption, but maybe log it visibly
+                const logs = [createLog('Error', 'Sistema', `Crash en misión: ${error}`), ...store.state.logs];
+                return { state: { ...store.state, logs } };
+            }
         });
     },
 

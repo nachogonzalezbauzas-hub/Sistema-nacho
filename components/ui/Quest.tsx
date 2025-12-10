@@ -128,9 +128,7 @@ export const QuestCard: React.FC<QuestCardProps> = ({ quest, onClaim, onManualCo
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
+                                onClick={() => {
                                     if (onManualComplete) onManualComplete(quest.id);
                                 }}
                                 className="h-9 px-4 text-[10px] font-black tracking-widest border-emerald-500/50 text-emerald-400 hover:bg-emerald-950 hover:text-emerald-300 active:scale-95 transition-transform touch-manipulation relative z-50 pointer-events-auto"

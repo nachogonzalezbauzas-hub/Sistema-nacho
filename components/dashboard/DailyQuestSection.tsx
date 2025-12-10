@@ -67,7 +67,7 @@ export const DailyQuestSection: React.FC<DailyQuestSectionProps> = ({ dailyQuest
                 {dailyQuests.length > 0 ? (
                     dailyQuests.map((quest) => (
                         <QuestCard
-                            key={quest.id}
+                            key={`${quest.id}-${quest.completed}-${!!quest.claimedAt}`}
                             quest={quest}
                             onClaim={onClaimQuest}
                             onManualComplete={onManualComplete}

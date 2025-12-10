@@ -257,6 +257,7 @@ const GameContent = () => {
           totalPower={getTotalPower()}
           dailyQuests={state.dailyQuests}
           onClaimQuest={claimQuestReward}
+          onManualComplete={manualCompleteQuest}
           equippedItems={state.inventory.filter(i => i.isEquipped)}
           onManageGear={() => setCurrentTab('Gear')}
           lastSleepRecord={state.bodyRecords.length > 0 ? [...state.bodyRecords].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] : undefined}
