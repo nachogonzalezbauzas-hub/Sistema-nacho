@@ -115,7 +115,7 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                     // Calculate Shards early so we can include in currency card
                     const rankMultipliers: Record<string, number> = { 'E': 1, 'D': 2, 'C': 3, 'B': 4, 'A': 5, 'S': 6, 'SS': 8, 'SSS': 10 };
                     const difficultyMultiplier = rankMultipliers[dungeon.difficulty as string] || 1;
-                    const shardReward = Math.floor(30 * (1 + difficultyMultiplier * 0.5)); // Increased from 10x to 30x base per user request
+                    const shardReward = Math.floor(10 * (1 + difficultyMultiplier * 0.3)); // Reduced: missions should be main shard source
 
                     // Add combined XP + Shards Currency Card (displays side by side)
                     newRewardQueue.push({

@@ -49,8 +49,8 @@ export const calculateDungeonRewards = (dungeon: Dungeon, victory: boolean, play
     const floor = parseInt(dungeon.id.split('_')[1] || '1');
     const isBoss = floor % 10 === 0;
 
-    // XP with variance (Reduced for Demon Tower balance)
-    const xp = Math.floor(dungeon.rewards.xp * 0.4 * (1 + Math.random() * 0.2));
+    // XP with variance (Heavily reduced - real life missions should be main XP source)
+    const xp = Math.floor(dungeon.rewards.xp * 0.15 * (1 + Math.random() * 0.2));
 
     // Generic loot
     dungeon.rewards.items.forEach(item => {

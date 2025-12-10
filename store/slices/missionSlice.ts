@@ -271,9 +271,18 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
 
             // Level Scaling for XP (10% increase per level)
             const levelMultiplier = 1 + (newStats.level * 0.1);
-            const earnedXp = Math.floor(mission.xpReward * streakMultiplier * buffMultiplier * levelMultiplier);
+            // MISSION BOOST: Real life missions are 2.5x more valuable than before!
+            const missionBoostMultiplier = 2.5;
+            const earnedXp = Math.floor(mission.xpReward * streakMultiplier * buffMultiplier * levelMultiplier * missionBoostMultiplier);
 
             newStats.xpCurrent += earnedXp;
+
+            // === GUARANTEED SHARD REWARD FOR MISSIONS ===
+            // Base 15-40 shards, scaling with level and streak
+            const baseShards = 15 + Math.floor(Math.random() * 25);
+            const shardReward = Math.floor(baseShards * (1 + globalStreak * 0.1) * (1 + newStats.level * 0.05));
+            nextState.shards = (nextState.shards || 0) + shardReward;
+            logs.unshift(createLog('Sistema', 'Recompensa de Misión', `+${shardReward} Fragmentos por completar ${mission.title}`));
 
             // --- SEASON XP (Hunter Rank) ---
             if (nextState.currentSeason) {
