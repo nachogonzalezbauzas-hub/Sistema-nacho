@@ -43,10 +43,14 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             {/* BACKGROUND SYSTEM */}
             <Background />
 
+            {/* OLD REWARD SYSTEM - DISABLED in favor of new AnimationQueueProvider system */}
+            {/* The new animations in AnimationQueueProvider handle: Stats, XP, Level Up, Shards, Equipment, Titles, Frames */}
+            {/* This old overlay is kept for legacy reward types but auto-clears to prevent blocking */}
             {state.rewardQueue.length > 0 && (
-                <div className="fixed inset-0 z-[200]">
-                    <UnifiedRewardOverlay queue={state.rewardQueue} onClear={onClearRewards} />
-                </div>
+                <React.Fragment>
+                    {/* Auto-clear legacy reward queue immediately to prevent old animations */}
+                    {setTimeout(() => onClearRewards(), 0) && null}
+                </React.Fragment>
             )}
 
             {/* Dungeon Failure Modal */}
