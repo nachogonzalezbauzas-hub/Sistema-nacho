@@ -16,7 +16,7 @@ export interface InventorySlice {
     addEquipment: (item: Equipment) => void;
     addReward: (reward: RewardItem) => void;
     clearRewards: () => void;
-    purchaseQuestShopItem: (item: QuestShopItem) => void;
+    // purchaseQuestShopItem is in MissionSlice - removed from here to prevent duplicates
     purchaseEquipment: (cost: number, rarity?: ItemRarity, onItemGenerated?: (item: Equipment) => void) => void;
 }
 
@@ -251,40 +251,7 @@ export const createInventorySlice: StateCreator<GameStore, [], [], InventorySlic
         }));
     },
 
-    purchaseQuestShopItem: (item) => {
-        set((store) => {
-            const prev = store.state;
-            if (prev.questPoints < item.cost) return {};
-            if (item.type === 'cosmetic' && prev.questShopPurchases.includes(item.id)) return {};
-
-            const newQP = prev.questPoints - item.cost;
-            const newPurchases = [...prev.questShopPurchases, item.id];
-            let newStats = { ...prev.stats };
-            let newLogs = [...prev.logs];
-
-            if (item.reward.xp) {
-                newStats.xpCurrent += item.reward.xp;
-            }
-            if (item.reward.titleId && !newStats.unlockedTitleIds.includes(item.reward.titleId)) {
-                newStats.unlockedTitleIds = [...newStats.unlockedTitleIds, item.reward.titleId];
-            }
-            if (item.reward.frameId && !newStats.unlockedFrameIds.includes(item.reward.frameId)) {
-                newStats.unlockedFrameIds = [...newStats.unlockedFrameIds, item.reward.frameId];
-            }
-
-            newLogs.unshift(createLog('Sistema', 'Compra en Tienda', `Comprado ${item.name} por ${item.cost} QP`));
-
-            return {
-                state: {
-                    ...prev,
-                    questPoints: newQP,
-                    questShopPurchases: newPurchases,
-                    stats: newStats,
-                    logs: newLogs
-                }
-            };
-        });
-    },
+    // purchaseQuestShopItem removed - now only in missionSlice to prevent duplicate triggers
 
     purchaseEquipment: (cost: number, rarity?: ItemRarity, onItemGenerated?: (item: Equipment) => void) => {
         const prev = get().state;
