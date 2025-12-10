@@ -415,16 +415,7 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                             luckyRewardName = `Title: ${title.name}`;
                             luckyRewardType = 'Title';
                             logs.unshift(createLog('Sistema', 'Lucky Drop!', `¡Has desbloqueado Título: ${title.name}!`));
-
-                            if (!nextState.rewardQueue) nextState.rewardQueue = [];
-                            nextState.rewardQueue.push({
-                                id: `lucky_title_${title.id}`,
-                                type: 'title',
-                                name: title.name,
-                                rarity: title.rarity as ItemRarity,
-                                icon: 'Crown',
-                                value: 0
-                            });
+                            // Animation handled by useCosmeticUnlockAnimations hook
                         }
                     }
                 }
@@ -442,16 +433,7 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                             luckyRewardName = `Frame: ${frame.name}`;
                             luckyRewardType = 'Frame';
                             logs.unshift(createLog('Sistema', 'Lucky Drop!', `¡Has descubierto un Marco Raro: ${frame.name}!`));
-
-                            if (!nextState.rewardQueue) nextState.rewardQueue = [];
-                            nextState.rewardQueue.push({
-                                id: `lucky_frame_${frame.id}`,
-                                type: 'frame',
-                                name: frame.name,
-                                rarity: frame.rarity as ItemRarity,
-                                icon: 'LayoutTemplate',
-                                value: 0
-                            });
+                            // Animation handled by useCosmeticUnlockAnimations hook
                         }
                     }
                 }
@@ -547,15 +529,7 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                     if (drop && drop.type === 'title') {
                         const title = drop.item;
                         bonusLog = `¡Increíble! Desbloqueaste Título: ${title.name}`;
-
-                        nextState.rewardQueue.push({
-                            id: `bonus_title_${Date.now()}`,
-                            type: 'item',
-                            name: `Título: ${title.name}`,
-                            rarity: 'epic',
-                            icon: '👑',
-                            value: 0
-                        });
+                        // Animation handled by useCosmeticUnlockAnimations hook
 
                         if (!newStats.unlockedTitleIds.includes(title.id)) {
                             newStats.unlockedTitleIds = [...newStats.unlockedTitleIds, title.id];
@@ -570,15 +544,7 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                     if (drop && drop.type === 'frame') {
                         const frame = drop.item;
                         bonusLog = `¡Mítico! Marco Hallado: ${frame.name}`;
-
-                        nextState.rewardQueue.push({
-                            id: `bonus_frame_${Date.now()}`,
-                            type: 'item',
-                            name: `Marco: ${frame.name}`,
-                            rarity: 'legendary',
-                            icon: '🖼️',
-                            value: 0
-                        });
+                        // Animation handled by useCosmeticUnlockAnimations hook
 
                         if (!newStats.unlockedFrameIds.includes(frame.id)) {
                             newStats.unlockedFrameIds = [...newStats.unlockedFrameIds, frame.id];
