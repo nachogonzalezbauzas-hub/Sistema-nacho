@@ -5,6 +5,7 @@ import { CosmeticUnlockOverlay } from './CosmeticUnlockOverlay';
 import { AchievementPopup } from './AchievementPopup';
 import { LevelUpCelebration } from './LevelUpCelebration';
 import { UniversalRewardReveal } from './UniversalRewardReveal';
+import { XPGainReveal, LevelUpReveal, StatIncreaseReveal } from './ProgressRevealAnimations';
 import { StatType, Title, AvatarFrame, Equipment } from '@/types';
 import { X, Crown, Image, Sparkles } from 'lucide-react';
 
@@ -15,7 +16,8 @@ type AnimationEvent =
     | { type: 'cosmetic_batch'; items: Array<{ cosmeticType: 'title' | 'frame'; cosmetic: any }> }
     | { type: 'achievement'; title: string; description?: string; icon?: React.ReactNode; achievementType?: 'achievement' | 'milestone' | 'quest' }
     | { type: 'level_up'; newLevel: number }
-    | { type: 'equipment_reward'; equipment: Equipment };
+    | { type: 'equipment_reward'; equipment: Equipment }
+    | { type: 'xp_gain'; xpGained: number; oldXP: number; newXP: number; xpToNextLevel: number; currentLevel: number };
 
 interface AnimationQueueContextType {
     enqueueAnimation: (event: AnimationEvent) => void;
@@ -235,21 +237,36 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
                 )}
             </AnimatePresence>
 
-            {/* Level Up Animation */}
+            {/* Level Up Animation - Using new beautiful reveal */}
             {currentEvent?.type === 'level_up' && (
-                <LevelUpCelebration
+                <LevelUpReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
                     newLevel={currentEvent.newLevel}
-                    onComplete={handleAnimationComplete}
                 />
             )}
 
-            {/* Stat Increase Animation */}
+            {/* Stat Increase Animation - Using new beautiful reveal */}
             {currentEvent?.type === 'stat_increase' && (
-                <StatIncreaseCelebration
+                <StatIncreaseReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
                     statName={currentEvent.statName}
                     oldValue={currentEvent.oldValue}
                     newValue={currentEvent.newValue}
-                    onComplete={handleAnimationComplete}
+                />
+            )}
+
+            {/* XP Gain Animation */}
+            {currentEvent?.type === 'xp_gain' && (
+                <XPGainReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
+                    xpGained={currentEvent.xpGained}
+                    oldXP={currentEvent.oldXP}
+                    newXP={currentEvent.newXP}
+                    xpToNextLevel={currentEvent.xpToNextLevel}
+                    currentLevel={currentEvent.currentLevel}
                 />
             )}
 
@@ -316,3 +333,4 @@ export { AchievementPopup } from './AchievementPopup';
 export { MissionCompleteEffect } from './MissionCompleteEffect';
 export { LevelUpCelebration } from './LevelUpCelebration';
 export { UniversalRewardReveal } from './UniversalRewardReveal';
+export { XPGainReveal, LevelUpReveal, StatIncreaseReveal } from './ProgressRevealAnimations';

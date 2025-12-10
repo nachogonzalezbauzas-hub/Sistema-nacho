@@ -218,3 +218,48 @@ export const useEquipmentRewardAnimations = () => {
         prevInventoryIdsRef.current = [...currentIds];
     }, [inventoryStr, enqueueAnimation]);
 };
+
+/**
+ * Hook that watches for XP changes and triggers animations.
+ * Only triggers for significant XP gains (>= 20 XP) to avoid spam.
+ */
+export const useXPGainAnimations = () => {
+    const { state } = useStore();
+    const { enqueueAnimation } = useAnimationQueue();
+
+    const isFirstLoadRef = useRef(true);
+    const prevXPRef = useRef(0);
+
+    useEffect(() => {
+        if (!state?.stats) return;
+
+        const currentXP = state.stats.xpCurrent;
+        const level = state.stats.level;
+        const xpToNextLevel = state.stats.xpForNextLevel || 100;
+
+        // Skip first load
+        if (isFirstLoadRef.current) {
+            isFirstLoadRef.current = false;
+            prevXPRef.current = currentXP;
+            return;
+        }
+
+        const xpGained = currentXP - prevXPRef.current;
+
+        // Only show animation for significant XP gains (>= 20)
+        if (xpGained >= 20) {
+            console.log('[Animation] Enqueuing XP gain:', xpGained);
+            enqueueAnimation({
+                type: 'xp_gain',
+                xpGained: xpGained,
+                oldXP: prevXPRef.current,
+                newXP: currentXP,
+                xpToNextLevel: xpToNextLevel,
+                currentLevel: level,
+            });
+        }
+
+        // Update ref
+        prevXPRef.current = currentXP;
+    }, [state?.stats?.xpCurrent, enqueueAnimation]);
+};
