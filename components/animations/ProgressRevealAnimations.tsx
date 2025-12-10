@@ -608,3 +608,205 @@ export const StatIncreaseReveal: React.FC<StatIncreaseRevealProps> = ({
         </AnimatePresence>
     );
 };
+
+// ============ SHARDS GAIN REVEAL ============
+const SHARD_COLOR = '#a855f7'; // Purple
+
+interface ShardsGainRevealProps {
+    isOpen: boolean;
+    onClose: () => void;
+    shardsGained: number;
+    totalShards: number;
+}
+
+export const ShardsGainReveal: React.FC<ShardsGainRevealProps> = ({
+    isOpen,
+    onClose,
+    shardsGained,
+    totalShards
+}) => {
+    const [phase, setPhase] = useState<'shaking' | 'reveal'>('shaking');
+    const [displayShards, setDisplayShards] = useState(0);
+
+    useEffect(() => {
+        if (isOpen) {
+            setPhase('shaking');
+            setDisplayShards(0);
+            const t1 = setTimeout(() => setPhase('reveal'), 600);
+            return () => clearTimeout(t1);
+        }
+    }, [isOpen]);
+
+    // Animate counter
+    useEffect(() => {
+        if (phase === 'reveal') {
+            const duration = 1000;
+            const start = performance.now();
+
+            const animate = (time: number) => {
+                const elapsed = time - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                setDisplayShards(Math.round(shardsGained * eased));
+                if (progress < 1) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        }
+    }, [phase, shardsGained]);
+
+    const particles = useMemo(() =>
+        Array.from({ length: 24 }, (_, i) => ({
+            id: i,
+            angle: (360 / 24) * i + (Math.random() * 15),
+            delay: Math.random() * 0.2,
+            distance: 70 + Math.random() * 50,
+            size: Math.random() * 5 + 2,
+        })), []);
+
+    const isHighAmount = shardsGained >= 100;
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                >
+                    <motion.div className="absolute inset-0 bg-black/90 backdrop-blur-md" />
+
+                    {/* Light beams for high amounts */}
+                    {isHighAmount && phase === 'reveal' && (
+                        <motion.div
+                            className="absolute inset-0 flex items-center justify-center -z-10"
+                            initial={{ opacity: 0, rotate: 0 }}
+                            animate={{ opacity: 0.2, rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                        >
+                            {[...Array(8)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute w-[2px] h-[150vmax] origin-[50%_0%]"
+                                    style={{
+                                        backgroundColor: SHARD_COLOR,
+                                        transform: `rotate(${i * 45}deg) translateY(50%)`,
+                                        boxShadow: `0 0 30px 3px ${SHARD_COLOR}`
+                                    }}
+                                />
+                            ))}
+                        </motion.div>
+                    )}
+
+                    <div className="relative z-10 flex flex-col items-center px-4 w-full max-w-md">
+                        {/* Close button */}
+                        {phase === 'reveal' && (
+                            <motion.button
+                                initial={{ opacity: 0, scale: 0 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 1 }}
+                                className="absolute top-[-80px] right-0 p-3 bg-slate-900/80 rounded-full text-slate-400 hover:text-white border border-slate-700"
+                                onClick={onClose}
+                            >
+                                <X size={24} />
+                            </motion.button>
+                        )}
+
+                        {/* Icon Container */}
+                        <div className="relative h-40 flex items-center justify-center">
+                            <motion.div
+                                className="absolute inset-0 rounded-full blur-3xl -z-10"
+                                style={{ backgroundColor: SHARD_COLOR }}
+                                animate={{ scale: phase === 'reveal' ? [1, 1.5, 1] : 1, opacity: 0.4 }}
+                            />
+
+                            {phase === 'shaking' && (
+                                <motion.div
+                                    className="w-24 h-24 rounded-2xl flex items-center justify-center"
+                                    style={{ backgroundColor: `${SHARD_COLOR}20`, border: `3px solid ${SHARD_COLOR}`, boxShadow: `0 0 40px ${SHARD_COLOR}` }}
+                                    animate={{ rotate: [0, -8, 8, -8, 8, 0], scale: [1, 1.1, 1] }}
+                                    transition={{ duration: 0.4, repeat: 1 }}
+                                >
+                                    {/* Diamond/Gem icon */}
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke={SHARD_COLOR} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M6 3h12l4 6-10 13L2 9z" />
+                                        <path d="M12 22V9" />
+                                        <path d="M2 9h20" />
+                                        <path d="m6 3 6 6" />
+                                        <path d="m18 3-6 6" />
+                                    </svg>
+                                </motion.div>
+                            )}
+
+                            {/* Particles */}
+                            {phase !== 'shaking' && particles.map((p) => (
+                                <motion.div
+                                    key={p.id}
+                                    className="absolute left-1/2 top-1/2 rounded-full"
+                                    style={{ backgroundColor: p.id % 3 === 0 ? '#e879f9' : SHARD_COLOR, width: p.size, height: p.size }}
+                                    initial={{ x: 0, y: 0, opacity: 1 }}
+                                    animate={{ x: Math.cos(p.angle * Math.PI / 180) * p.distance, y: Math.sin(p.angle * Math.PI / 180) * p.distance, opacity: 0 }}
+                                    transition={{ duration: 0.6, delay: p.delay }}
+                                />
+                            ))}
+                        </div>
+
+                        {/* Content */}
+                        {phase === 'reveal' && (
+                            <motion.div
+                                className="w-full flex flex-col items-center"
+                                initial={{ opacity: 0, scale: 0.5, y: 50 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                            >
+                                {/* Type Badge */}
+                                <motion.div
+                                    className="flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full bg-slate-900 border"
+                                    style={{ borderColor: SHARD_COLOR }}
+                                >
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={SHARD_COLOR} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M6 3h12l4 6-10 13L2 9z" />
+                                    </svg>
+                                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: SHARD_COLOR }}>
+                                        Fragmentos
+                                    </span>
+                                </motion.div>
+
+                                {/* Shards Amount */}
+                                <motion.h2
+                                    className="text-5xl font-black font-mono mb-2"
+                                    style={{ color: SHARD_COLOR, textShadow: `0 0 20px ${SHARD_COLOR}` }}
+                                >
+                                    +{displayShards}
+                                </motion.h2>
+
+                                {/* Total Card */}
+                                <motion.div
+                                    className="relative p-1 rounded-2xl w-full max-w-xs mt-4"
+                                    style={{ background: `linear-gradient(135deg, ${SHARD_COLOR}, #581c87)`, boxShadow: `0 0 30px ${SHARD_COLOR}50` }}
+                                >
+                                    <div className="bg-slate-950/90 backdrop-blur-xl rounded-xl p-6 flex flex-col items-center">
+                                        <span className="text-sm text-slate-400 mb-2">Total de Fragmentos</span>
+                                        <span className="text-3xl font-bold font-mono" style={{ color: SHARD_COLOR }}>
+                                            {totalShards.toLocaleString()}
+                                        </span>
+                                    </div>
+                                </motion.div>
+
+                                <motion.button
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 1 }}
+                                    onClick={onClose}
+                                    className="mt-6 px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white"
+                                >
+                                    ¡Genial!
+                                </motion.button>
+                            </motion.div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+};

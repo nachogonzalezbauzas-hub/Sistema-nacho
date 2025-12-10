@@ -263,3 +263,43 @@ export const useXPGainAnimations = () => {
         prevXPRef.current = currentXP;
     }, [state?.stats?.xpCurrent, enqueueAnimation]);
 };
+
+/**
+ * Hook that watches for Shards changes and triggers animations.
+ * Only triggers for significant gains (>= 50 shards) to avoid spam.
+ */
+export const useShardsGainAnimations = () => {
+    const { state } = useStore();
+    const { enqueueAnimation } = useAnimationQueue();
+
+    const isFirstLoadRef = useRef(true);
+    const prevShardsRef = useRef(0);
+
+    useEffect(() => {
+        if (!state) return;
+
+        const currentShards = state.shards || 0;
+
+        // Skip first load
+        if (isFirstLoadRef.current) {
+            isFirstLoadRef.current = false;
+            prevShardsRef.current = currentShards;
+            return;
+        }
+
+        const shardsGained = currentShards - prevShardsRef.current;
+
+        // Only show animation for significant gains (>= 50)
+        if (shardsGained >= 50) {
+            console.log('[Animation] Enqueuing shards gain:', shardsGained);
+            enqueueAnimation({
+                type: 'shards_gain',
+                shardsGained: shardsGained,
+                totalShards: currentShards,
+            });
+        }
+
+        // Update ref
+        prevShardsRef.current = currentShards;
+    }, [state?.shards, enqueueAnimation]);
+};

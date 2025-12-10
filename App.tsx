@@ -8,7 +8,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { DEFAULT_SEASON, DEFAULT_SEASON_PROGRESS } from '@/store/defaults';
 import { MainLayout, Tab } from '@/components/layout/MainLayout';
 import { AnimationQueueProvider } from '@/components/animations';
-import { useStatChangeAnimations, useCosmeticUnlockAnimations, useEquipmentRewardAnimations, useXPGainAnimations } from '@/components/animations/useAnimationHooks';
+import { useStatChangeAnimations, useCosmeticUnlockAnimations, useEquipmentRewardAnimations, useXPGainAnimations, useShardsGainAnimations } from '@/components/animations/useAnimationHooks';
 import { useAudioEffects } from '@/utils/useAudioEffects';
 import { audioManager } from '@/utils/audioManager';
 import { VoiceCommander } from '@/components/layout/VoiceCommander';
@@ -44,10 +44,11 @@ import { ZoneCompleteSummary } from '@/components/zone/ZoneCompleteSummary';
 
 // Animation and Audio observer component - must be inside AnimationQueueProvider
 const AnimationObserver = () => {
-  useStatChangeAnimations(); // Enabled: Shows beautiful stat/level up reveals
-  useCosmeticUnlockAnimations(); // Enabled: Shows beautiful title/frame reveals
-  useEquipmentRewardAnimations(); // Enabled: Shows beautiful equipment reveals
-  useXPGainAnimations(); // Enabled: Shows beautiful XP bar animation
+  useStatChangeAnimations(); // Shows beautiful stat/level up reveals
+  useCosmeticUnlockAnimations(); // Shows beautiful title/frame reveals
+  useEquipmentRewardAnimations(); // Shows beautiful equipment reveals
+  useXPGainAnimations(); // Shows beautiful XP bar animation
+  useShardsGainAnimations(); // Shows beautiful shards animation
   useAudioEffects(); // Audio SFX triggers
   return null;
 };

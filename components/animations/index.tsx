@@ -5,7 +5,7 @@ import { CosmeticUnlockOverlay } from './CosmeticUnlockOverlay';
 import { AchievementPopup } from './AchievementPopup';
 import { LevelUpCelebration } from './LevelUpCelebration';
 import { UniversalRewardReveal } from './UniversalRewardReveal';
-import { XPGainReveal, LevelUpReveal, StatIncreaseReveal } from './ProgressRevealAnimations';
+import { XPGainReveal, LevelUpReveal, StatIncreaseReveal, ShardsGainReveal } from './ProgressRevealAnimations';
 import { StatType, Title, AvatarFrame, Equipment } from '@/types';
 import { X, Crown, Image, Sparkles } from 'lucide-react';
 
@@ -17,7 +17,21 @@ type AnimationEvent =
     | { type: 'achievement'; title: string; description?: string; icon?: React.ReactNode; achievementType?: 'achievement' | 'milestone' | 'quest' }
     | { type: 'level_up'; newLevel: number }
     | { type: 'equipment_reward'; equipment: Equipment }
-    | { type: 'xp_gain'; xpGained: number; oldXP: number; newXP: number; xpToNextLevel: number; currentLevel: number };
+    | { type: 'xp_gain'; xpGained: number; oldXP: number; newXP: number; xpToNextLevel: number; currentLevel: number }
+    | { type: 'shards_gain'; shardsGained: number; totalShards: number };
+
+// Priority order for animations (lower = higher priority, shows first)
+// Order: Level Up > Equipment > Cosmetics > Shards > XP > Stats > Achievements > Batch
+const ANIMATION_PRIORITY: Record<AnimationEvent['type'], number> = {
+    'level_up': 1,          // Most important - shows first
+    'equipment_reward': 2,  // New gear is exciting
+    'cosmetic_unlock': 3,   // Titles/frames unlocked
+    'shards_gain': 4,       // Currency gained
+    'xp_gain': 5,           // XP bar animation
+    'stat_increase': 6,     // Individual stat gains
+    'achievement': 7,       // Achievement popups
+    'cosmetic_batch': 8,    // Batch summary last
+};
 
 interface AnimationQueueContextType {
     enqueueAnimation: (event: AnimationEvent) => void;
@@ -160,11 +174,21 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
     // Count remaining animations
     const remainingCount = queue.length;
 
-    // Process queue with batching logic
+    // Sort queue by priority helper
+    const sortByPriority = (events: AnimationEvent[]): AnimationEvent[] => {
+        return [...events].sort((a, b) =>
+            (ANIMATION_PRIORITY[a.type] || 99) - (ANIMATION_PRIORITY[b.type] || 99)
+        );
+    };
+
+    // Process queue - always take the highest priority item
     useEffect(() => {
         if (!currentEvent && queue.length > 0) {
-            const [nextEvent, ...rest] = queue;
-            setQueue(rest);
+            // Sort by priority and take the first (highest priority)
+            const sorted = sortByPriority(queue);
+            const nextEvent = sorted[0];
+            // Remove the selected event from queue
+            setQueue(prev => prev.filter((_, i) => i !== queue.indexOf(nextEvent)));
             setCurrentEvent(nextEvent);
         }
     }, [queue, currentEvent]);
@@ -184,12 +208,15 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
 
                     if (pending.length >= 3) {
                         // Batch them into one
-                        setQueue(prev => [...prev, { type: 'cosmetic_batch', items: pending }]);
+                        setQueue(prev => sortByPriority([...prev, { type: 'cosmetic_batch', items: pending }]));
                     } else {
-                        // Add individually
-                        pending.forEach(item => {
-                            setQueue(prev => [...prev, { type: 'cosmetic_unlock', cosmeticType: item.cosmeticType, cosmetic: item.cosmetic }]);
-                        });
+                        // Add individually and sort
+                        const newEvents = pending.map(item => ({
+                            type: 'cosmetic_unlock' as const,
+                            cosmeticType: item.cosmeticType,
+                            cosmetic: item.cosmetic
+                        }));
+                        setQueue(prev => sortByPriority([...prev, ...newEvents]));
                     }
                     return [];
                 });
@@ -197,7 +224,8 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
 
             setBatchTimeout(timeout);
         } else {
-            setQueue(prev => [...prev, event]);
+            // Add to queue and sort by priority
+            setQueue(prev => sortByPriority([...prev, event]));
         }
     }, [batchTimeout]);
 
@@ -270,6 +298,16 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
                 />
             )}
 
+            {/* Shards Gain Animation */}
+            {currentEvent?.type === 'shards_gain' && (
+                <ShardsGainReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
+                    shardsGained={currentEvent.shardsGained}
+                    totalShards={currentEvent.totalShards}
+                />
+            )}
+
             {/* Cosmetic Unlock Animation (individual) - Using new Universal Reveal */}
             {currentEvent?.type === 'cosmetic_unlock' && (
                 <UniversalRewardReveal
@@ -333,4 +371,4 @@ export { AchievementPopup } from './AchievementPopup';
 export { MissionCompleteEffect } from './MissionCompleteEffect';
 export { LevelUpCelebration } from './LevelUpCelebration';
 export { UniversalRewardReveal } from './UniversalRewardReveal';
-export { XPGainReveal, LevelUpReveal, StatIncreaseReveal } from './ProgressRevealAnimations';
+export { XPGainReveal, LevelUpReveal, StatIncreaseReveal, ShardsGainReveal } from './ProgressRevealAnimations';
