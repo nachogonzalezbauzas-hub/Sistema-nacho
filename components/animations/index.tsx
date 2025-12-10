@@ -204,10 +204,34 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
         }
     }, [queue, currentEvent]);
 
+    // Track which cosmetic IDs we've already added to prevent duplicates
+    const [shownCosmeticIds, setShownCosmeticIds] = useState<Set<string>>(new Set());
+
     const enqueueAnimation = useCallback((event: AnimationEvent) => {
-        // If it's a cosmetic unlock, collect them for potential batching
+        // If it's a cosmetic unlock, check for duplicates and collect for potential batching
         if (event.type === 'cosmetic_unlock') {
-            setPendingCosmetics(prev => [...prev, { cosmeticType: event.cosmeticType as 'title' | 'frame', cosmetic: event.cosmetic }]);
+            const cosmeticId = event.cosmetic?.id || event.cosmetic?.name;
+
+            // DEDUPLICATION: Skip if we've already shown this cosmetic
+            if (shownCosmeticIds.has(cosmeticId)) {
+                console.log('[Animation] Skipping duplicate cosmetic:', cosmeticId);
+                return;
+            }
+
+            // Mark as shown
+            setShownCosmeticIds(prev => new Set(prev).add(cosmeticId));
+
+            // Also check if already in pending
+            setPendingCosmetics(prev => {
+                const alreadyPending = prev.some(p =>
+                    (p.cosmetic?.id || p.cosmetic?.name) === cosmeticId
+                );
+                if (alreadyPending) {
+                    console.log('[Animation] Already pending, skipping:', cosmeticId);
+                    return prev;
+                }
+                return [...prev, { cosmeticType: event.cosmeticType as 'title' | 'frame', cosmetic: event.cosmetic }];
+            });
 
             // Clear previous timeout
             if (batchTimeout) clearTimeout(batchTimeout);
@@ -238,7 +262,7 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
             // Add to queue and sort by priority
             setQueue(prev => sortByPriority([...prev, event]));
         }
-    }, [batchTimeout]);
+    }, [batchTimeout, shownCosmeticIds]);
 
     const clearQueue = useCallback(() => {
         setQueue([]);
