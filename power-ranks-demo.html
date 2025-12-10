@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>50 Hunter Power Ranks Demo</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background: #0a0a0f; 
+            color: white; 
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+        }
+        h1 { text-align: center; margin-bottom: 30px; font-size: 28px; }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 15px; 
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        @media (max-width: 1000px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .rank-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.5);
+        }
+        .rank-number { font-size: 10px; color: #666; margin-bottom: 5px; }
+        .rank-name { font-size: 9px; color: #888; margin-top: 5px; }
+        .rank-min { font-size: 8px; color: #555; }
+        
+        .power-badge {
+            position: relative;
+            overflow: hidden;
+            padding: 8px 16px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .power-icon { width: 14px; height: 14px; }
+        
+        /* Shimmer animation */
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        .shimmer::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.1) 50%, transparent 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        .rainbow-text {
+            background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #ff9ff3, #54a0ff, #5f27cd, #ff6b6b);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbow 3s linear infinite;
+        }
+        
+        .corner-tl, .corner-br { position: absolute; width: 6px; height: 6px; }
+        .corner-tl { top: 0; left: 0; border-top: 2px solid currentColor; border-left: 2px solid currentColor; }
+        .corner-br { bottom: 0; right: 0; border-bottom: 2px solid currentColor; border-right: 2px solid currentColor; }
+    </style>
+</head>
+<body>
+    <h1>🔥 50 Hunter Power Ranks</h1>
+    <div class="grid" id="ranks"></div>
+    
+    <script>
+        const POWER_RANKS = [
+            // Tier 1-10: Initiate → Scout
+            { rank: 1, name: 'Initiate I', min: 0, hex: '#4a5568', glow: '', shimmer: false, rainbow: false },
+            { rank: 2, name: 'Initiate II', min: 100, hex: '#5a6678', glow: '', shimmer: false, rainbow: false },
+            { rank: 3, name: 'Initiate III', min: 250, hex: '#6a7688', glow: '', shimmer: false, rainbow: false },
+            { rank: 4, name: 'Initiate IV', min: 500, hex: '#718096', glow: '', shimmer: false, rainbow: false },
+            { rank: 5, name: 'Initiate V', min: 800, hex: '#a0aec0', glow: '', shimmer: false, rainbow: false },
+            { rank: 6, name: 'Scout I', min: 1200, hex: '#48bb78', glow: '0 0 10px rgba(72,187,120,0.15)', shimmer: false, rainbow: false },
+            { rank: 7, name: 'Scout II', min: 1800, hex: '#38a169', glow: '0 0 12px rgba(56,161,105,0.2)', shimmer: false, rainbow: false },
+            { rank: 8, name: 'Scout III', min: 2500, hex: '#2f855a', glow: '0 0 14px rgba(47,133,90,0.25)', shimmer: false, rainbow: false },
+            { rank: 9, name: 'Scout IV', min: 3500, hex: '#276749', glow: '0 0 16px rgba(39,103,73,0.3)', shimmer: false, rainbow: false },
+            { rank: 10, name: 'Scout V', min: 5000, hex: '#22c55e', glow: '0 0 18px rgba(34,197,94,0.35)', shimmer: false, rainbow: false },
+            
+            // Tier 11-20: Warrior → Knight
+            { rank: 11, name: 'Warrior I', min: 7000, hex: '#14b8a6', glow: '0 0 15px rgba(20,184,166,0.25)', shimmer: false, rainbow: false },
+            { rank: 12, name: 'Warrior II', min: 9500, hex: '#0d9488', glow: '0 0 17px rgba(13,148,136,0.3)', shimmer: false, rainbow: false },
+            { rank: 13, name: 'Warrior III', min: 12500, hex: '#0891b2', glow: '0 0 19px rgba(8,145,178,0.35)', shimmer: false, rainbow: false },
+            { rank: 14, name: 'Warrior IV', min: 16000, hex: '#0284c7', glow: '0 0 21px rgba(2,132,199,0.4)', shimmer: false, rainbow: false },
+            { rank: 15, name: 'Warrior V', min: 20000, hex: '#0ea5e9', glow: '0 0 23px rgba(14,165,233,0.45)', shimmer: true, rainbow: false },
+            { rank: 16, name: 'Knight I', min: 25000, hex: '#3b82f6', glow: '0 0 20px rgba(59,130,246,0.35)', shimmer: true, rainbow: false },
+            { rank: 17, name: 'Knight II', min: 31000, hex: '#2563eb', glow: '0 0 22px rgba(37,99,235,0.4)', shimmer: true, rainbow: false },
+            { rank: 18, name: 'Knight III', min: 38000, hex: '#1d4ed8', glow: '0 0 24px rgba(29,78,216,0.45)', shimmer: true, rainbow: false },
+            { rank: 19, name: 'Knight IV', min: 46000, hex: '#1e40af', glow: '0 0 26px rgba(30,64,175,0.5)', shimmer: true, rainbow: false },
+            { rank: 20, name: 'Knight V', min: 55000, hex: '#6366f1', glow: '0 0 28px rgba(99,102,241,0.55)', shimmer: true, rainbow: false },
+            
+            // Tier 21-30: Elite → Champion
+            { rank: 21, name: 'Elite I', min: 65000, hex: '#8b5cf6', glow: '0 0 25px rgba(139,92,246,0.4)', shimmer: true, rainbow: false },
+            { rank: 22, name: 'Elite II', min: 77000, hex: '#7c3aed', glow: '0 0 27px rgba(124,58,237,0.45)', shimmer: true, rainbow: false },
+            { rank: 23, name: 'Elite III', min: 90000, hex: '#6d28d9', glow: '0 0 29px rgba(109,40,217,0.5)', shimmer: true, rainbow: false },
+            { rank: 24, name: 'Elite IV', min: 105000, hex: '#a855f7', glow: '0 0 31px rgba(168,85,247,0.55)', shimmer: true, rainbow: false },
+            { rank: 25, name: 'Elite V', min: 122000, hex: '#c026d3', glow: '0 0 33px rgba(192,38,211,0.6)', shimmer: true, rainbow: false },
+            { rank: 26, name: 'Champion I', min: 140000, hex: '#d946ef', glow: '0 0 30px rgba(217,70,239,0.5)', shimmer: true, rainbow: false },
+            { rank: 27, name: 'Champion II', min: 160000, hex: '#e879f9', glow: '0 0 32px rgba(232,121,249,0.55)', shimmer: true, rainbow: false },
+            { rank: 28, name: 'Champion III', min: 182000, hex: '#f0abfc', glow: '0 0 34px rgba(240,171,252,0.6)', shimmer: true, rainbow: false },
+            { rank: 29, name: 'Champion IV', min: 206000, hex: '#f472b6', glow: '0 0 36px rgba(244,114,182,0.65)', shimmer: true, rainbow: false },
+            { rank: 30, name: 'Champion V', min: 232000, hex: '#ec4899', glow: '0 0 38px rgba(236,72,153,0.7)', shimmer: true, rainbow: false },
+            
+            // Tier 31-40: Master → Grandmaster
+            { rank: 31, name: 'Master I', min: 260000, hex: '#fbbf24', glow: '0 0 35px rgba(251,191,36,0.55)', shimmer: true, rainbow: false },
+            { rank: 32, name: 'Master II', min: 292000, hex: '#f59e0b', glow: '0 0 37px rgba(245,158,11,0.6)', shimmer: true, rainbow: false },
+            { rank: 33, name: 'Master III', min: 326000, hex: '#d97706', glow: '0 0 39px rgba(217,119,6,0.65)', shimmer: true, rainbow: false },
+            { rank: 34, name: 'Master IV', min: 364000, hex: '#ea580c', glow: '0 0 41px rgba(234,88,12,0.7)', shimmer: true, rainbow: false },
+            { rank: 35, name: 'Master V', min: 405000, hex: '#f97316', glow: '0 0 43px rgba(249,115,22,0.75)', shimmer: true, rainbow: false },
+            { rank: 36, name: 'Grandmaster I', min: 450000, hex: '#ef4444', glow: '0 0 40px rgba(239,68,68,0.6)', shimmer: true, rainbow: false },
+            { rank: 37, name: 'Grandmaster II', min: 500000, hex: '#dc2626', glow: '0 0 42px rgba(220,38,38,0.65)', shimmer: true, rainbow: false },
+            { rank: 38, name: 'Grandmaster III', min: 555000, hex: '#b91c1c', glow: '0 0 44px rgba(185,28,28,0.7)', shimmer: true, rainbow: false },
+            { rank: 39, name: 'Grandmaster IV', min: 615000, hex: '#991b1b', glow: '0 0 46px rgba(153,27,27,0.75)', shimmer: true, rainbow: false },
+            { rank: 40, name: 'Grandmaster V', min: 680000, hex: '#ff0000', glow: '0 0 48px rgba(255,0,0,0.8)', shimmer: true, rainbow: false },
+            
+            // Tier 41-50: Legend → Shadow Monarch
+            { rank: 41, name: 'Legend I', min: 750000, hex: '#fafafa', glow: '0 0 45px rgba(250,250,250,0.6)', shimmer: true, rainbow: false },
+            { rank: 42, name: 'Legend II', min: 800000, hex: '#ffffff', glow: '0 0 48px rgba(255,255,255,0.65)', shimmer: true, rainbow: false },
+            { rank: 43, name: 'Legend III', min: 850000, hex: '#ffffff', glow: '0 0 51px rgba(255,255,255,0.7)', shimmer: true, rainbow: false },
+            { rank: 44, name: 'Legend IV', min: 895000, hex: '#ffffff', glow: '0 0 54px rgba(255,255,255,0.75)', shimmer: true, rainbow: false },
+            { rank: 45, name: 'Legend V', min: 935000, hex: '#ffffff', glow: '0 0 57px rgba(255,255,255,0.8)', shimmer: true, rainbow: true },
+            { rank: 46, name: 'Monarch I', min: 960000, hex: '#ffffff', glow: '0 0 55px rgba(255,255,255,0.7)', shimmer: true, rainbow: true },
+            { rank: 47, name: 'Monarch II', min: 975000, hex: '#ffffff', glow: '0 0 58px rgba(255,255,255,0.75)', shimmer: true, rainbow: true },
+            { rank: 48, name: 'Monarch III', min: 985000, hex: '#ffffff', glow: '0 0 61px rgba(255,255,255,0.8)', shimmer: true, rainbow: true },
+            { rank: 49, name: 'Monarch IV', min: 993000, hex: '#ffffff', glow: '0 0 64px rgba(255,255,255,0.85)', shimmer: true, rainbow: true },
+            { rank: 50, name: 'Shadow Monarch', min: 1000000, hex: '#ffffff', glow: '0 0 70px rgba(255,255,255,0.9)', shimmer: true, rainbow: true },
+        ];
+        
+        const container = document.getElementById('ranks');
+        
+        POWER_RANKS.forEach(r => {
+            const card = document.createElement('div');
+            card.className = 'rank-card';
+            
+            const shimmerClass = r.shimmer ? 'shimmer' : '';
+            const rainbowClass = r.rainbow ? 'rainbow-text' : '';
+            const textStyle = r.rainbow ? '' : `color: ${r.hex}; text-shadow: 0 0 ${r.rank}px ${r.hex};`;
+            const corners = r.rank >= 30 ? `
+                <div class="corner-tl" style="color: ${r.hex}"></div>
+                <div class="corner-br" style="color: ${r.hex}"></div>
+            ` : '';
+            
+            card.innerHTML = `
+                <div class="rank-number">#${r.rank}</div>
+                <div class="power-badge ${shimmerClass}" style="border: 1px solid ${r.hex}40; box-shadow: ${r.glow || 'none'}">
+                    ${corners}
+                    <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="${r.hex}" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    <span class="${rainbowClass}" style="${textStyle}">${r.min.toLocaleString()}</span>
+                </div>
+                <div class="rank-name">${r.name}</div>
+            `;
+            
+            container.appendChild(card);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+import { StateCreator } from 'zustand';
+import { DungeonRunResult, BossDefinition, Shadow } from '../../types';
+import { ALL_DUNGEONS } from '../../dungeons/dungeonGenerator';
+import { calculateDungeonRewards } from '../../dungeons/rewardGenerator';
+import { createLog } from '../utils';
+import { TITLES, AVATAR_FRAMES } from '../../data/titles';
+import { recomputeTitlesAndFrames } from './userSlice';
+import { calculateLevel } from '../../utils/progression';
+import { calculateTotalPower } from '../selectors';
+import { GameStore } from '../useStore';
+
+export interface DungeonSlice {
+    startDungeonRun: (dungeonId: string) => { result: DungeonRunResult, boss?: BossDefinition } | null;
+    extractShadow: (boss: BossDefinition) => { success: boolean; message: string; shadow?: Shadow };
+    closeDungeonResult: () => void;
+    equipShadow: (shadowId: string) => void;
+}
+
+export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> = (set, get) => ({
+    startDungeonRun: (dungeonId) => {
+        try {
+            const dungeon = ALL_DUNGEONS.find(d => d.id === dungeonId);
+            if (!dungeon) {
+                console.error(`Dungeon not found: ${dungeonId}`);
+                return null;
+            }
+
+            const state = get().state;
+
+            // 1. Calculate Power
+            const userPower = calculateTotalPower(state);
+            const requiredPower = dungeon.recommendedPower || 0;
+
+            // 2. Determine Outcome
+            const victory = userPower >= requiredPower;
+
+            console.log(`[Dungeon] ${dungeon.name} | User: ${userPower} vs Req: ${requiredPower} | Victory: ${victory}`);
+
+            // 3. Calculate Rewards
+            const { xp, rewards, equipment, unlockedTitleId, unlockedFrameId } = calculateDungeonRewards(dungeon, victory, state.stats.level);
+
+            const boss = dungeon.boss;
+
+            const runResult: DungeonRunResult = {
+                id: crypto.randomUUID(),
+                dungeonId: dungeon.id,
+                bossId: boss?.id,
+                victory,
+                timestamp: new Date().toISOString(),
+                xpEarned: xp,
+                rewards: [...rewards, ...equipment.map(e => e.name)],
+                equipment: equipment,
+                unlockedTitleId: unlockedTitleId,
+                unlockedFrameId: unlockedFrameId
+            };
+
+            set((store) => {
+                let nextState = { ...store.state };
+                let prev = store.state;
+
+                // Only apply rewards on victory
+                if (victory) {
+                    nextState.dungeonRuns = [runResult, ...nextState.dungeonRuns];
+                    let newRewardQueue = [...prev.rewardQueue];
+
+                    // Add Equipment
+                    if (equipment.length > 0) {
+                        nextState.inventory = [...nextState.inventory, ...equipment];
+                        equipment.forEach(item => {
+                            nextState.logs.unshift(createLog('System', 'Dungeon Loot', `Obtained: ${item.name} (${item.rarity})`));
+                            newRewardQueue.push({
+                                id: `dungeon_equip_${item.id}`,
+                                type: 'item',
+                                name: item.name,
+                                rarity: item.rarity,
+                                icon: '🛡️'
+                            });
+                        });
+                    }
+
+                    // Handle Title Unlock
+                    if (unlockedTitleId && !nextState.stats.unlockedTitleIds.includes(unlockedTitleId as any)) {
+                        nextState.stats.unlockedTitleIds.push(unlockedTitleId as any);
+                        const titleDef = TITLES?.find(t => t.id === unlockedTitleId);
+                        if (titleDef) {
+                            nextState.logs.unshift(createLog('System', 'Dungeon Reward', `Unlocked Title: ${titleDef.name}`));
+                        }
+                    }
+
+                    // Handle Frame Unlock
+                    if (unlockedFrameId && !nextState.stats.unlockedFrameIds.includes(unlockedFrameId as any)) {
+                        nextState.stats.unlockedFrameIds.push(unlockedFrameId as any);
+                        const frameDef = AVATAR_FRAMES?.find(f => f.id === unlockedFrameId);
+                        if (frameDef) {
+                            nextState.logs.unshift(createLog('System', 'Dungeon Reward', `Unlocked Frame: ${frameDef.name}`));
+                        }
+                    }
+
+                    // Handle Shadow Extraction
+                    if (boss && boss.canExtract && boss.shadowData) {
+                        const alreadyHas = nextState.shadows.some(s => s.name === boss.shadowData!.name);
+                        if (!alreadyHas) {
+                            const newShadow: Shadow = {
+                                id: crypto.randomUUID(),
+                                name: boss.shadowData!.name,
+                                rank: boss.shadowData!.rank,
+                                image: boss.shadowData!.image,
+                                bonus: boss.shadowData!.bonus,
+                                isEquipped: false,
+                                extractedAt: new Date().toISOString()
+                            };
+                            nextState.shadows = [...nextState.shadows, newShadow];
+                            nextState.logs.unshift(createLog('System', 'Shadow Extraction', `ARISE! ${newShadow.name} has joined your army.`));
+                        }
+                    }
+
+                    // Apply XP
+                    let newStats = { ...nextState.stats };
+                    const { level, xp: newXp, leveledUp, xpForNextLevel } = calculateLevel(newStats.level, newStats.xpCurrent + xp);
+
+                    newStats.level = level;
+                    newStats.xpCurrent = newXp;
+                    newStats.xpForNextLevel = xpForNextLevel;
+
+                    if (leveledUp) {
+                        newStats.strength += 1;
+                        newStats.vitality += 1;
+                        newStats.agility += 1;
+                        newStats.intelligence += 1;
+                        newStats.fortune += 1;
+                        newStats.metabolism += 1;
+
+                        nextState.justLeveledUp = true;
+                        nextState.logs.unshift(createLog('LevelUp', `LEVEL UP – ${level}`, 'Your power grows.', { levelChange: { from: prev.stats.level, to: level } }));
+
+                        // Add Level Up Reward to Queue
+                        newRewardQueue.push({
+                            id: `levelup_${level}_${Date.now()}`,
+                            type: 'levelup',
+                            name: `Level ${level}`,
+                            description: 'Stats Increased',
+                            value: 0,
+                            icon: '⚡',
+                            powerGain: 1000
+                        });
+                    }
+
+                    nextState.stats = newStats;
+                    nextState.rewardQueue = newRewardQueue;
+
+                    const logEntry = createLog(
+                        'System',
+                        'Dungeon Cleared',
+                        `Defeated ${dungeon.name}. Rewards: ${xp} XP.`,
+                        { xpChange: xp }
+                    );
+                    nextState.logs.unshift(logEntry);
+
+                    // Award Shards (New Feature)
+                    // Base shards + difficulty multiplier
+                    const rankMultipliers: Record<string, number> = { 'E': 1, 'D': 2, 'C': 3, 'B': 4, 'A': 5, 'S': 6, 'SS': 8, 'SSS': 10 };
+                    const difficultyMultiplier = rankMultipliers[dungeon.difficulty as string] || 1;
+                    const shardReward = Math.floor(10 * (1 + difficultyMultiplier * 0.5));
+                    nextState.shards += shardReward;
+                    nextState.logs.unshift(createLog('System', 'Dungeon Reward', `Obtained ${shardReward} Shards`));
+                    newRewardQueue.push({
+                        id: `dungeon_shards_${Date.now()}`,
+                        type: 'item',
+                        name: `${shardReward} Shards`,
+                        rarity: 'rare',
+                        icon: '✨'
+                    });
+
+                    // Update result with shards earned
+                    runResult.shardsEarned = shardReward;
+                } else {
+                    // Defeat Logic
+                    const logEntry = createLog(
+                        'System',
+                        'Dungeon Failed',
+                        `Failed to clear ${dungeon.name}. Recommended Power: ${requiredPower}`,
+                    );
+                    nextState.logs.unshift(logEntry);
+                }
+
+                nextState.isDungeonResultVisible = true;
+                nextState.lastDungeonResult = runResult;
+
+                // Check Achievements
+                return { state: recomputeTitlesAndFrames(nextState) };
+            });
+
+            return { result: runResult, boss: dungeon.boss };
+        } catch (error) {
+            console.error("Failed to start dungeon run:", error);
+            return null;
+        }
+    },
+
+    extractShadow: (boss) => {
+        return { success: false, message: "Shadows are now extracted automatically upon boss defeat." };
+    },
+
+    closeDungeonResult: () => {
+        set((store) => ({
+            state: {
+                ...store.state,
+                isDungeonResultVisible: false,
+                lastDungeonResult: null
+            }
+        }));
+    },
+
+    equipShadow: (shadowId) => {
+        set((store) => {
+            const shadow = store.state.shadows.find(s => s.id === shadowId);
+            if (!shadow) return {};
+            if (store.state.equippedShadowId === shadowId) {
+                return { state: { ...store.state, equippedShadowId: null } };
+            }
+            return { state: { ...store.state, equippedShadowId: shadowId } };
+        });
+    }
+});
+
