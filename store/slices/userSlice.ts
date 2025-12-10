@@ -311,17 +311,7 @@ export const recomputeTitlesAndFrames = (currentState: AppState): AppState => {
         hasChanges = true;
         const log = createLog('Logro', 'Título Desbloqueado', `Has desbloqueado: ${newlyUnlockedTitle.name}`);
         nextState.logs = [log, ...nextState.logs];
-
-        // Add Title Reward to Queue
-        if (!nextState.rewardQueue) nextState.rewardQueue = [];
-        nextState.rewardQueue = [...nextState.rewardQueue, {
-            id: `title_${newlyUnlockedTitle.id}_${Date.now()}`,
-            type: 'title',
-            name: newlyUnlockedTitle.name,
-            description: newlyUnlockedTitle.description,
-            icon: newlyUnlockedTitle.icon,
-            rarity: newlyUnlockedTitle.rarity
-        }];
+        // NOTE: Animation now handled by useCosmeticUnlockAnimations hook - no rewardQueue needed
     }
 
     // Check for new frames
@@ -336,33 +326,10 @@ export const recomputeTitlesAndFrames = (currentState: AppState): AppState => {
         nextState.stats.unlockedFrameIds = combinedFrameIds as AvatarFrameId[];
         hasChanges = true;
 
-        // Add Frame Rewards to Queue
-        if (actuallyNewFrames.length > 0) {
-            if (!nextState.rewardQueue) nextState.rewardQueue = [];
-            // Convert frame rank to ItemRarity
-            const frameRankToRarity = (rank: string): 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic' => {
-                switch (rank) {
-                    case 'C': return 'uncommon';
-                    case 'B': return 'rare';
-                    case 'A': return 'epic';
-                    case 'S': return 'legendary';
-                    case 'SS': return 'mythic';
-                    case 'SSS': return 'mythic';
-                    default: return 'common';
-                }
-            };
-            actuallyNewFrames.forEach(frame => {
-                nextState.rewardQueue.push({
-                    id: `frame_${frame.id}_${Date.now()}`,
-                    type: 'frame', // Correct type for frame animation
-                    name: frame.name,
-                    description: frame.description,
-                    icon: '🖼️',
-                    rarity: frameRankToRarity(frame.rarity)
-                });
-                nextState.logs.unshift(createLog('Logro', 'Marco Desbloqueado', `Desbloqueado: ${frame.name}`));
-            });
-        }
+        // Log new frames (animation handled by useCosmeticUnlockAnimations hook)
+        actuallyNewFrames.forEach(frame => {
+            nextState.logs.unshift(createLog('Logro', 'Marco Desbloqueado', `Desbloqueado: ${frame.name}`));
+        });
     }
 
     return hasChanges ? nextState : currentState;
