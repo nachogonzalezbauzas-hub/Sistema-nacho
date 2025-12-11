@@ -75,7 +75,7 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ redeemCode, resetAll
                     </p>
                 </div>
 
-                <div className="flex gap-2 items-center relative z-30">
+                <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center relative z-30">
                     <input
                         type="text"
                         value={code}
@@ -83,12 +83,12 @@ export const DataSettings: React.FC<DataSettingsProps> = ({ redeemCode, resetAll
                             setCode(e.target.value);
                         }}
                         placeholder={t('settings_code_placeholder', language)}
-                        className="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors relative z-30"
+                        className="w-full sm:flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors relative z-30"
                     />
                     <button
                         type="button"
                         onClick={handleRedeem}
-                        className="relative z-30 cursor-pointer active:scale-95 h-11 px-6 rounded-lg bg-emerald-600 text-white text-xs font-black tracking-wider hover:bg-emerald-500 transition-all shadow-lg hover:shadow-emerald-500/20"
+                        className="w-full sm:w-auto relative z-30 cursor-pointer active:scale-95 h-11 px-6 rounded-lg bg-emerald-600 text-white text-xs font-black tracking-wider hover:bg-emerald-500 transition-all shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center"
                     >
                         {t('settings_redeem', language)}
                     </button>

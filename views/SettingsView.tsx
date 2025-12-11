@@ -21,7 +21,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ state, updateSetting
     const [isDirectorOpen, setIsDirectorOpen] = useState(false);
 
     return (
-        <div className="pb-24 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="pb-32 space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-x-hidden">
 
             {/* Header */}
             <div className="flex justify-between items-end px-1 pb-2 border-b border-blue-900/30">
