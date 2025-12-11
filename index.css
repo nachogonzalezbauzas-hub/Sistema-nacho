@@ -91,6 +91,10 @@ body {
   min-height: 100vh;
   background-color: #000000;
   /* Match app background */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  /* Prevent rubber banding */
 }
 
 h1 {

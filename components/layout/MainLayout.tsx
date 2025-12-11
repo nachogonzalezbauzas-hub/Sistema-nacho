@@ -103,7 +103,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
             </header>
 
             {/* --- MAIN CONTENT --- */}
-            <main className="max-w-xl mx-auto p-4 relative z-10 min-h-[calc(100vh-140px)] pb-24">
+            <main className="max-w-xl mx-auto p-4 relative z-10 min-h-[calc(100vh-140px)] pb-32">
                 {children}
             </main>
 

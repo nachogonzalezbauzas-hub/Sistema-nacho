@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Sparkles, ChevronUp, Zap, Star, TrendingUp, Crown, Image, Check } from 'lucide-react';
 import { StatType } from '@/types';
 import { StatIcon } from '@/components';
+import { useStore } from '@/store/index';
 
 // Colors for the animations
 const XP_COLOR = '#3b82f6'; // Blue
@@ -1038,6 +1039,9 @@ export const ZoneChangeReveal: React.FC<ZoneChangeRevealProps> = ({
     zoneColor,
     floorRange
 }) => {
+
+    const { state } = useStore();
+    const isPerformance = state.settings.performanceMode;
     const [phase, setPhase] = useState<'shaking' | 'flash' | 'reveal'>('shaking');
 
     useEffect(() => {
@@ -1060,8 +1064,8 @@ export const ZoneChangeReveal: React.FC<ZoneChangeRevealProps> = ({
                 >
                     <motion.div className="absolute inset-0 bg-black/95 backdrop-blur-md" />
 
-                    {/* Background Visuals specific to zone color */}
-                    {phase === 'reveal' && (
+                    {/* Background Visuals specific to zone color - Hidden in Performance Mode */}
+                    {phase === 'reveal' && !isPerformance && (
                         <motion.div
                             className="absolute inset-0 flex items-center justify-center -z-10"
                             initial={{ opacity: 0 }}
@@ -1077,8 +1081,8 @@ export const ZoneChangeReveal: React.FC<ZoneChangeRevealProps> = ({
                         </motion.div>
                     )}
 
-                    {/* Rotating Beams */}
-                    {phase === 'reveal' && (
+                    {/* Rotating Beams - Hidden in Performance Mode */}
+                    {phase === 'reveal' && !isPerformance && (
                         <motion.div
                             className="absolute inset-0 flex items-center justify-center -z-10"
                             initial={{ opacity: 0, rotate: 0 }}

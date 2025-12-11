@@ -64,10 +64,12 @@ export default defineConfig(({ mode }) => {
           manualChunks: {
             'react-vendor': ['react', 'react-dom'],
             'ui-vendor': ['framer-motion', 'lucide-react', 'clsx', 'tailwind-merge'],
-            'state-vendor': ['zustand']
+            'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+            'utils': ['date-fns', 'uuid', 'zustand']
           }
         }
-      }
+      },
+      chunkSizeWarningLimit: 1000,
     },
     test: {
       globals: true,
