@@ -202,7 +202,11 @@ const GameContent = () => {
 
   // --- AUDIO MANAGER ---
   useEffect(() => {
-    const bgMusic = new Audio('/audio/system-nacho-theme.mp3');
+    // Randomize between the two available tracks
+    const tracks = ['/audio/music/Untitled.wav', '/audio/music/ambient_main.wav'];
+    const randomTrack = tracks[Math.floor(Math.random() * tracks.length)];
+
+    const bgMusic = new Audio(randomTrack);
     bgMusic.loop = true;
     bgMusic.volume = 0.35;
 
