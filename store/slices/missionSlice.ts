@@ -1057,8 +1057,22 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                     updatedMissions.push(coreMission);
                     hasChanges = true;
                 } else {
-                    // Optional: Update definition if changed in code (e.g. rewards/details)
-                    // For now, we assume ID match is enough.
+                    // Update definition to match code (XP changes, typos, etc)
+                    // But PRESERVE user progress (streak, lastCompletedAt)
+                    const index = updatedMissions.findIndex(m => m.id === coreMission.id);
+                    const existing = updatedMissions[index];
+
+                    const updated = {
+                        ...coreMission, // New definition (XP, Title, etc)
+                        lastCompletedAt: existing.lastCompletedAt,
+                        streak: existing.streak
+                    };
+
+                    // Check if anything actually changed to avoid loop/overhead
+                    if (JSON.stringify(existing) !== JSON.stringify(updated)) {
+                        updatedMissions[index] = updated;
+                        hasChanges = true;
+                    }
                 }
             });
 
