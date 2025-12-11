@@ -89,12 +89,14 @@ export const FramesTab: React.FC<FramesTabProps> = ({ stats, onEquipFrame, langu
                         const frames = groupedFrames[rank];
                         if (!frames || frames.length === 0) return null;
 
-                        // Visibility Check - REMOVED to show all frames
-                        // const unlockFloor = getRankUnlockFloor(rank);
-                        // if (unlockFloor > maxReachedFloor) {
-                        //     hasHiddenContent = true;
-                        //     return null;
-                        // }
+                        // Visibility Check: Hide content from future zones (Spoiler Protection)
+                        const unlockFloor = getRankUnlockFloor(rank);
+                        const hasUnlockedInRank = frames.some(f => stats.unlockedFrameIds.includes(f.id));
+
+                        if (unlockFloor > maxReachedFloor && !hasUnlockedInRank) {
+                            hasHiddenContent = true;
+                            return null;
+                        }
 
                         return (
                             <div key={rank} className="space-y-3">
@@ -112,10 +114,10 @@ export const FramesTab: React.FC<FramesTabProps> = ({ stats, onEquipFrame, langu
                         );
                     })}
 
-                    {/* Animated Placeholder - REMOVED */}
-                    {/* {hasHiddenContent && (
+                    {/* Spoiler Placeholder */}
+                    {hasHiddenContent && (
                         <LockedContentPlaceholder />
-                    )} */}
+                    )}
                 </div>
             </div>
         </div>

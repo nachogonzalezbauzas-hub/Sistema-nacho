@@ -84,9 +84,15 @@ export const TitlesTab: React.FC<TitlesTabProps> = ({ stats, onEquipTitle, langu
                     {t('profile_locked_titles', language)}
                 </h3>
                 {rarityOrder.map(rarity => {
-                    // Show all titles, even if deep in the dungeon
                     const titles = lockedGrouped[rarity];
                     if (!titles || titles.length === 0) return null;
+
+                    // Spoiler Protection: Hide locked titles from deeper floors
+                    const unlockFloor = RARITY_UNLOCK_FLOORS[rarity.toLowerCase()] || 0;
+                    if (unlockFloor > maxReachedFloor) {
+                        hasHiddenContent = true;
+                        return null;
+                    }
 
                     return renderTitleGroup(titles, rarity, false);
                 })}
