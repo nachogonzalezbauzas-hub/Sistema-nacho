@@ -108,38 +108,22 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                 let prev = store.state;
 
                 // Only apply rewards on victory
+                // Only apply rewards on victory
                 if (victory) {
                     nextState.dungeonRuns = [runResult, ...(nextState.dungeonRuns || [])];
-                    let newRewardQueue = [...(prev.rewardQueue || [])];
+                    // Clean up legacy rewardQueue usage - rely on new hooks
 
                     // Calculate Shards early so we can include in currency card
                     const rankMultipliers: Record<string, number> = { 'E': 1, 'D': 2, 'C': 3, 'B': 4, 'A': 5, 'S': 6, 'SS': 8, 'SSS': 10 };
                     const difficultyMultiplier = rankMultipliers[dungeon.difficulty as string] || 1;
                     const shardReward = Math.floor(10 * (1 + difficultyMultiplier * 0.3)); // Reduced: missions should be main shard source
 
-                    // Add combined XP + Shards Currency Card (displays side by side)
-                    newRewardQueue.push({
-                        id: `dungeon_currency_${Date.now()}`,
-                        type: 'currency',
-                        name: `${dungeon.name} Cleared`,
-                        value: xp,
-                        shards: shardReward,
-                        icon: '💎'
-                    });
-
                     // Add Equipment
                     if (equipment.length > 0) {
                         nextState.inventory = [...nextState.inventory, ...equipment];
                         equipment.forEach(item => {
                             nextState.logs.unshift(createLog('Sistema', 'Botín de Mazmorra', `Obtenido: ${item.name} (${item.rarity})`));
-                            newRewardQueue.push({
-                                id: `dungeon_equip_${item.id}`,
-                                type: 'item',
-                                name: item.name,
-                                rarity: item.rarity,
-                                icon: '🛡️',
-                                stats: item.baseStats?.map(s => ({ stat: s.stat, value: s.value }))
-                            });
+                            // Animation will be handled by useEquipmentRewardAnimations
                         });
                     }
 
@@ -156,11 +140,9 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                     if (unlockedFrameId && !nextState.stats.unlockedFrameIds.includes(unlockedFrameId as any)) {
                         nextState.stats.unlockedFrameIds.push(unlockedFrameId as any);
                         const frameDef = AVATAR_FRAMES?.find(f => f.id === unlockedFrameId);
-                        console.log('[DEBUG] Frame unlock attempt:', unlockedFrameId, 'Found in AVATAR_FRAMES:', !!frameDef);
                         if (frameDef) {
                             nextState.logs.unshift(createLog('Sistema', 'Recompensa de Mazmorra', `Marco Desbloqueado: ${frameDef.name}`));
                         } else {
-                            // Frame ID not found in static list - log anyway for debugging
                             nextState.logs.unshift(createLog('Sistema', 'Sistema', `Marco añadido (ID: ${unlockedFrameId})`));
                         }
                     }
@@ -192,20 +174,10 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
 
                             // Check if ALREADY has this specific shadow title
                             if (!nextState.stats.unlockedTitleIds.includes(titleId)) {
-                                // Unlock the Title ID (Definition is now in TITLES via SHADOW_TITLES)
+                                // Unlock the Title ID
                                 nextState.stats.unlockedTitleIds.push(titleId);
-
                                 nextState.logs.unshift(createLog('Sistema', 'Título Desbloqueado', `Título obtenido: ${titleName}`));
-
-                                // Add to Reward Queue
-                                newRewardQueue.push({
-                                    id: `shadow_title_${titleId}_${Date.now()}`,
-                                    type: 'title',
-                                    name: titleName,
-                                    description: `Sombra extraída de ${boss.name}.`,
-                                    icon: '👻', // Ghost emoji for notification (better than people)
-                                    rarity: 'mythic'
-                                });
+                                // Animation handled by hook
                             }
                         }
                     }
@@ -228,21 +200,11 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
 
                         nextState.justLeveledUp = true;
                         nextState.logs.unshift(createLog('Subida de Nivel', `NIVEL ALCANZADO – ${level}`, 'Tu poder aumenta.', { levelChange: { from: prev.stats.level, to: level } }));
-
-                        // Add Level Up Reward to Queue
-                        newRewardQueue.push({
-                            id: `levelup_${level}_${Date.now()}`,
-                            type: 'levelup',
-                            name: `Nivel ${level}`,
-                            description: 'Estadísticas Aumentadas',
-                            value: 0,
-                            icon: '⚡',
-                            powerGain: 1000
-                        });
+                        // Animation handled by hook
                     }
 
                     nextState.stats = newStats;
-                    nextState.rewardQueue = newRewardQueue;
+                    // nextState.rewardQueue not updated - using new system
 
                     const logEntry = createLog(
                         'Sistema',
