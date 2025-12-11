@@ -161,5 +161,29 @@ export const CORE_MISSIONS: Mission[] = [
         frequency: 'daily',
         daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
         streak: 0
+    },
+    {
+        id: 'core_sleep_pill',
+        title: 'Tomar pastilla dormir',
+        detail: 'Hábito nocturno para asegurar un buen descanso.',
+        targetStat: 'Vitality',
+        xpReward: 30,
+        isDaily: true,
+        lastCompletedAt: null,
+        frequency: 'daily',
+        daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+        streak: 0
+    },
+    {
+        id: 'core_no_night_snack',
+        title: 'No comer de noche',
+        detail: 'Controlar la ansiedad nocturna. No comer nada tarde.',
+        targetStat: 'Intelligence',
+        xpReward: 60,
+        isDaily: true,
+        lastCompletedAt: null,
+        frequency: 'daily',
+        daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
+        streak: 0
     }
 ];
