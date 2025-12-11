@@ -10,6 +10,13 @@ if (!rootElement) {
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 const root = ReactDOM.createRoot(rootElement);
+
+// Disable logs in production for performance
+if (import.meta.env.PROD) {
+  console.log = () => { };
+  console.debug = () => { };
+}
+
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
