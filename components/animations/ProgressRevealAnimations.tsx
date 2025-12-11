@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, ChevronUp, Zap, Star, TrendingUp } from 'lucide-react';
+import { X, Sparkles, ChevronUp, Zap, Star, TrendingUp, Crown, Image, Check } from 'lucide-react';
 import { StatType } from '@/types';
 import { StatIcon } from '@/components';
 
@@ -801,6 +801,214 @@ export const ShardsGainReveal: React.FC<ShardsGainRevealProps> = ({
                                     className="mt-6 px-8 py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white"
                                 >
                                     ¡Genial!
+                                </motion.button>
+                            </motion.div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+};
+
+// ============ BATCH COSMETIC REVEAL ============
+
+interface CosmeticBatchRevealProps {
+    isOpen: boolean;
+    onClose: () => void;
+    items: Array<{ cosmeticType: 'title' | 'frame'; cosmetic: any }>;
+}
+
+export const CosmeticBatchReveal: React.FC<CosmeticBatchRevealProps> = ({
+    isOpen,
+    onClose,
+    items
+}) => {
+    const [phase, setPhase] = useState<'shaking' | 'flash' | 'reveal'>('shaking');
+
+    useEffect(() => {
+        if (isOpen) {
+            setPhase('shaking');
+            // Shake duration
+            const t1 = setTimeout(() => setPhase('flash'), 800);
+            // Flash duration to Reveal
+            const t2 = setTimeout(() => setPhase('reveal'), 1100);
+            return () => { clearTimeout(t1); clearTimeout(t2); };
+        }
+    }, [isOpen]);
+
+    const particles = useMemo(() =>
+        Array.from({ length: 30 }, (_, i) => ({
+            id: i,
+            angle: (360 / 30) * i + (Math.random() * 20 - 10),
+            delay: Math.random() * 0.3,
+            distance: 90 + Math.random() * 60,
+            size: Math.random() * 4 + 2,
+            color: i % 2 === 0 ? '#fbbf24' : '#22d3ee' // Gold (Titles) & Cyan (Frames) mix
+        })), []);
+
+    // Helper to get rarity color
+    const getRarityColor = (rarity: string) => {
+        switch (rarity) {
+            case 'legendary': return '#a855f7'; // Purple
+            case 'epic': return '#ef4444';      // Red
+            case 'rare': return '#3b82f6';      // Blue
+            case 'uncommon': return '#22c55e';  // Green
+            default: return '#94a3b8';          // Gray
+        }
+    };
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                >
+                    <motion.div className="absolute inset-0 bg-black/95 backdrop-blur-md" />
+
+                    {/* Rotating Beams */}
+                    {phase === 'reveal' && (
+                        <motion.div
+                            className="absolute inset-0 flex items-center justify-center -z-10"
+                            initial={{ opacity: 0, rotate: 0 }}
+                            animate={{ opacity: 0.3, rotate: 360 }}
+                            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+                        >
+                            {[...Array(10)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute w-[2px] h-[150vmax] origin-[50%_0%]"
+                                    style={{
+                                        backgroundColor: '#fbbf24', // Gold base
+                                        transform: `rotate(${i * 36}deg) translateY(50%)`,
+                                        boxShadow: `0 0 40px 2px #fbbf24`
+                                    }}
+                                />
+                            ))}
+                        </motion.div>
+                    )}
+
+                    {/* Flash Effect */}
+                    {phase === 'flash' && (
+                        <motion.div
+                            className="absolute inset-0 z-50 bg-white"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 0] }}
+                            transition={{ duration: 0.3 }}
+                        />
+                    )}
+
+                    <div className="relative z-10 flex flex-col items-center px-4 w-full max-w-lg h-full max-h-screen py-10 justify-center">
+                        {/* Shaking Box Concept */}
+                        {phase === 'shaking' && (
+                            <motion.div
+                                className="w-32 h-32 rounded-2xl flex items-center justify-center bg-slate-900 border-4 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.5)]"
+                                animate={{ rotate: [0, -10, 10, -10, 10, 0], scale: [1, 1.1, 1] }}
+                                transition={{ duration: 0.5, repeat: Infinity }}
+                            >
+                                <Sparkles size={64} className="text-yellow-400" />
+                            </motion.div>
+                        )}
+
+                        {/* Particles Explosion */}
+                        {phase !== 'shaking' && particles.map((p) => (
+                            <motion.div
+                                key={p.id}
+                                className="absolute left-1/2 top-1/2 rounded-full"
+                                style={{ backgroundColor: p.color, width: p.size, height: p.size }}
+                                initial={{ x: 0, y: 0, opacity: 1 }}
+                                animate={{ x: Math.cos(p.angle * Math.PI / 180) * p.distance * 1.5, y: Math.sin(p.angle * Math.PI / 180) * p.distance * 1.5, opacity: 0 }}
+                                transition={{ duration: 0.8, delay: p.delay }}
+                            />
+                        ))}
+
+                        {/* REVEAL CONTENT */}
+                        {phase === 'reveal' && (
+                            <motion.div
+                                className="flex flex-col items-center w-full"
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ type: 'spring', damping: 20 }}
+                            >
+                                {/* Header */}
+                                <motion.div
+                                    initial={{ y: -20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    className="mb-6 text-center"
+                                >
+                                    <h2 className="text-3xl font-black italic uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-b from-yellow-300 to-yellow-600 drop-shadow-lg">
+                                        ¡Recompensas Múltiples!
+                                    </h2>
+                                    <p className="text-yellow-200/60 text-sm font-bold tracking-widest mt-1">
+                                        Has desbloqueado {items.length} nuevos objetos
+                                    </p>
+                                </motion.div>
+
+                                {/* GRID OF ITEMS */}
+                                <div className="grid grid-cols-2 gap-3 w-full max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                                    {items.map((item, i) => {
+                                        const rarity = item.cosmetic.rarity || 'common';
+                                        const color = getRarityColor(rarity);
+
+                                        return (
+                                            <motion.div
+                                                key={i}
+                                                className="relative p-[1px] rounded-xl overflow-hidden group"
+                                                initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                transition={{ delay: i * 0.1 }}
+                                                style={{ background: `linear-gradient(135deg, ${color}, transparent)` }}
+                                            >
+                                                <div className="bg-slate-950/90 h-full p-3 rounded-[11px] flex items-center gap-3 hover:bg-slate-900 transition-colors">
+                                                    {/* Icon */}
+                                                    <div
+                                                        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                                                        style={{ backgroundColor: `${color}20`, border: `1px solid ${color}40` }}
+                                                    >
+                                                        {item.cosmeticType === 'title' ? (
+                                                            <Crown size={20} style={{ color }} />
+                                                        ) : (
+                                                            <Image size={20} style={{ color }} />
+                                                        )}
+                                                    </div>
+
+                                                    {/* Details */}
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-1 mb-0.5">
+                                                            <span
+                                                                className="text-[10px] font-bold uppercase tracking-wider"
+                                                                style={{ color }}
+                                                            >
+                                                                {item.cosmeticType === 'title' ? 'Título' : 'Marco'}
+                                                            </span>
+                                                        </div>
+                                                        <div className="text-xs font-bold text-slate-200 truncate">
+                                                            {item.cosmetic.name}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Checkmark */}
+                                                    <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                                                        <Check size={12} className="text-green-400" />
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Close Button */}
+                                <motion.button
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 1 + items.length * 0.1 }}
+                                    onClick={onClose}
+                                    className="mt-8 px-10 py-3 rounded-xl font-bold text-sm uppercase tracking-wider bg-white text-black hover:bg-slate-200 transition-colors shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                                >
+                                    Continuar
                                 </motion.button>
                             </motion.div>
                         )}

@@ -5,7 +5,7 @@ import { CosmeticUnlockOverlay } from './CosmeticUnlockOverlay';
 import { AchievementPopup } from './AchievementPopup';
 import { LevelUpCelebration } from './LevelUpCelebration';
 import { UniversalRewardReveal } from './UniversalRewardReveal';
-import { XPGainReveal, LevelUpReveal, StatIncreaseReveal, ShardsGainReveal } from './ProgressRevealAnimations';
+import { XPGainReveal, LevelUpReveal, StatIncreaseReveal, ShardsGainReveal, CosmeticBatchReveal } from './ProgressRevealAnimations';
 import { StatType, Title, AvatarFrame, Equipment } from '@/types';
 import { X, Crown, Image, Sparkles } from 'lucide-react';
 
@@ -48,122 +48,8 @@ export const useAnimationQueue = () => {
     return context;
 };
 
-// Batch Summary Component
-const CosmeticBatchSummary: React.FC<{
-    items: Array<{ cosmeticType: 'title' | 'frame'; cosmetic: any }>;
-    onClose: () => void;
-}> = ({ items, onClose }) => {
-    const titles = items.filter(i => i.cosmeticType === 'title');
-    const frames = items.filter(i => i.cosmeticType === 'frame');
+// CosmeticBatchSummary removed - replaced by CosmeticBatchReveal
 
-    return (
-        <motion.div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-        >
-            <motion.div
-                className="bg-gradient-to-b from-slate-900 to-slate-950 border border-green-500/30 rounded-2xl p-6 mx-4 max-w-sm w-full shadow-[0_0_50px_rgba(34,197,94,0.3)]"
-                initial={{ scale: 0.8, y: 50 }}
-                animate={{ scale: 1, y: 0 }}
-                transition={{ type: 'spring', damping: 15 }}
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="text-center mb-6">
-                    <motion.div
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/20 border border-green-500/40 mb-4"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2 }}
-                    >
-                        <Sparkles className="text-green-400" size={18} />
-                        <span className="text-green-300 font-bold uppercase tracking-widest text-sm">
-                            ¡Múltiples Desbloqueos!
-                        </span>
-                    </motion.div>
-
-                    <p className="text-slate-400 text-sm">
-                        Has desbloqueado {items.length} nuevos cosméticos
-                    </p>
-                </div>
-
-                <div className="space-y-4 max-h-[40vh] overflow-y-auto">
-                    {titles.length > 0 && (
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Crown size={16} className="text-yellow-400" />
-                                <span className="text-yellow-400 font-bold text-xs uppercase">
-                                    {titles.length} Títulos
-                                </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {titles.slice(0, 6).map((item, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2 text-center"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + i * 0.05 }}
-                                    >
-                                        <span className="text-yellow-200 text-xs font-medium truncate block">
-                                            {item.cosmetic.name}
-                                        </span>
-                                    </motion.div>
-                                ))}
-                                {titles.length > 6 && (
-                                    <div className="text-yellow-500/60 text-xs text-center col-span-2">
-                                        +{titles.length - 6} más
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {frames.length > 0 && (
-                        <div>
-                            <div className="flex items-center gap-2 mb-2">
-                                <Image size={16} className="text-cyan-400" />
-                                <span className="text-cyan-400 font-bold text-xs uppercase">
-                                    {frames.length} Marcos
-                                </span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {frames.slice(0, 6).map((item, i) => (
-                                    <motion.div
-                                        key={i}
-                                        className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-2 text-center"
-                                        initial={{ opacity: 0, x: -20 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: 0.3 + i * 0.05 }}
-                                    >
-                                        <span className="text-cyan-200 text-xs font-medium truncate block">
-                                            {item.cosmetic.name}
-                                        </span>
-                                    </motion.div>
-                                ))}
-                                {frames.length > 6 && (
-                                    <div className="text-cyan-500/60 text-xs text-center col-span-2">
-                                        +{frames.length - 6} más
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                <motion.button
-                    className="w-full mt-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl transition-colors"
-                    whileTap={{ scale: 0.95 }}
-                    onClick={onClose}
-                >
-                    ¡Genial!
-                </motion.button>
-            </motion.div>
-        </motion.div>
-    );
-};
 
 export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [queue, setQueue] = useState<AnimationEvent[]>([]);
@@ -375,7 +261,8 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
             {/* Cosmetic Batch Summary */}
             <AnimatePresence>
                 {currentEvent?.type === 'cosmetic_batch' && (
-                    <CosmeticBatchSummary
+                    <CosmeticBatchReveal
+                        isOpen={true}
                         items={currentEvent.items}
                         onClose={handleAnimationComplete}
                     />
