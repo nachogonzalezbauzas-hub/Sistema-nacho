@@ -5,7 +5,7 @@ import { CosmeticUnlockOverlay } from './CosmeticUnlockOverlay';
 import { AchievementPopup } from './AchievementPopup';
 import { LevelUpCelebration } from './LevelUpCelebration';
 import { UniversalRewardReveal } from './UniversalRewardReveal';
-import { XPGainReveal, LevelUpReveal, StatIncreaseReveal, ShardsGainReveal, CosmeticBatchReveal } from './ProgressRevealAnimations';
+import { XPGainReveal, LevelUpReveal, StatIncreaseReveal, ShardsGainReveal, CosmeticBatchReveal, ZoneChangeReveal } from './ProgressRevealAnimations';
 import { StatType, Title, AvatarFrame, Equipment } from '@/types';
 import { X, Crown, Image, Sparkles } from 'lucide-react';
 
@@ -18,19 +18,21 @@ type AnimationEvent =
     | { type: 'level_up'; newLevel: number }
     | { type: 'equipment_reward'; equipment: Equipment }
     | { type: 'xp_gain'; xpGained: number; oldXP: number; newXP: number; xpToNextLevel: number; currentLevel: number }
-    | { type: 'shards_gain'; shardsGained: number; totalShards: number };
+    | { type: 'shards_gain'; shardsGained: number; totalShards: number }
+    | { type: 'zone_change'; zoneName: string; zoneTheme: string; zoneColor: string; floorRange: [number, number] };
 
 // Priority order for animations (lower = higher priority, shows first)
-// Order: Stat > XP > Level Up > Shards > Equipment > Title > Frame
+// Order: Stat > XP > Level Up > Zone > Shards > Equipment > Title > Frame
 const ANIMATION_PRIORITY: Record<AnimationEvent['type'], number> = {
     'stat_increase': 1,     // First: Stats you gained
     'xp_gain': 2,           // Second: XP bar animation
     'level_up': 3,          // Third: Level up celebration
-    'shards_gain': 4,       // Fourth: Currency gained
-    'equipment_reward': 5,  // Fifth: New gear
-    'cosmetic_unlock': 6,   // Sixth: Titles/frames unlocked (sorted internally)
-    'achievement': 7,       // Seventh: Achievement popups
-    'cosmetic_batch': 8,    // Last: Batch summary
+    'zone_change': 4,       // Fourth: New Zone Unlocked!
+    'shards_gain': 5,       // Fifth: Currency gained
+    'equipment_reward': 6,  // Sixth: New gear
+    'cosmetic_unlock': 7,   // Seventh: Titles/frames unlocked (sorted internally)
+    'achievement': 8,       // Eighth: Achievement popups
+    'cosmetic_batch': 9,    // Last: Batch summary
 };
 
 interface AnimationQueueContextType {
@@ -219,6 +221,19 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
                     newXP={currentEvent.newXP}
                     xpToNextLevel={currentEvent.xpToNextLevel}
                     currentLevel={currentEvent.currentLevel}
+                />
+            )}
+
+
+            {/* Zone Change Reveal */}
+            {currentEvent?.type === 'zone_change' && (
+                <ZoneChangeReveal
+                    isOpen={true}
+                    onClose={handleAnimationComplete}
+                    zoneName={currentEvent.zoneName}
+                    zoneTheme={currentEvent.zoneTheme}
+                    zoneColor={currentEvent.zoneColor}
+                    floorRange={currentEvent.floorRange}
                 />
             )}
 

@@ -3,6 +3,7 @@ import { useStore } from '../../store';
 import { useAnimationQueue } from './index';
 import { StatType } from '../../types';
 import { TITLES, AVATAR_FRAMES } from '../../data/titles';
+import { getZoneInfo } from '../../data/zoneSystem';
 
 /**
  * Hook that watches for level and stat changes and triggers animations.
@@ -313,4 +314,45 @@ export const useShardsGainAnimations = () => {
         // Update ref
         prevShardsRef.current = currentShards;
     }, [state?.shards, enqueueAnimation]);
+};
+// End of hooks
+
+/**
+ * Hook that watches for Zone changes and triggers animations.
+ */
+export const useZoneChangeAnimations = () => {
+    const { state } = useStore();
+    const { enqueueAnimation } = useAnimationQueue();
+
+    const isFirstLoadRef = useRef(true);
+    const prevZoneRef = useRef(1);
+
+    useEffect(() => {
+        if (!state?.zone) return;
+
+        const currentZone = state.zone.currentZone || 1;
+
+        // Skip first load
+        if (isFirstLoadRef.current) {
+            isFirstLoadRef.current = false;
+            prevZoneRef.current = currentZone;
+            return;
+        }
+
+        // If zone increased
+        if (currentZone > prevZoneRef.current) {
+            const info = getZoneInfo(currentZone);
+            console.log('[Animation] Enqueuing Zone Change:', info.name);
+            enqueueAnimation({
+                type: 'zone_change',
+                zoneName: info.name,
+                zoneTheme: info.theme,
+                zoneColor: info.visuals.primaryColor,
+                floorRange: info.floorRange
+            });
+        }
+
+        // Update ref
+        prevZoneRef.current = currentZone;
+    }, [state?.zone?.currentZone, enqueueAnimation]);
 };

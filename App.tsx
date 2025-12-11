@@ -8,7 +8,7 @@ import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 import { DEFAULT_SEASON, DEFAULT_SEASON_PROGRESS } from '@/store/defaults';
 import { MainLayout, Tab } from '@/components/layout/MainLayout';
 import { AnimationQueueProvider } from '@/components/animations';
-import { useStatChangeAnimations, useCosmeticUnlockAnimations, useEquipmentRewardAnimations, useXPGainAnimations, useShardsGainAnimations } from '@/components/animations/useAnimationHooks';
+import { useStatChangeAnimations, useCosmeticUnlockAnimations, useEquipmentRewardAnimations, useXPGainAnimations, useShardsGainAnimations, useZoneChangeAnimations } from '@/components/animations/useAnimationHooks';
 import { useAudioEffects } from '@/utils/useAudioEffects';
 import { audioManager } from '@/utils/audioManager';
 import { VoiceCommander } from '@/components/layout/VoiceCommander';
@@ -49,6 +49,7 @@ const AnimationObserver = () => {
   useEquipmentRewardAnimations(); // Shows beautiful equipment reveals
   useXPGainAnimations(); // Shows beautiful XP bar animation
   useShardsGainAnimations(); // Shows beautiful shards animation
+  useZoneChangeAnimations(); // Shows beautiful zone reveal animation
   useAudioEffects(); // Audio SFX triggers
   return null;
 };

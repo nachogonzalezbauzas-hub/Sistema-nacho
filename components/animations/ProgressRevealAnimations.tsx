@@ -1018,3 +1018,187 @@ export const CosmeticBatchReveal: React.FC<CosmeticBatchRevealProps> = ({
         </AnimatePresence>
     );
 };
+
+// ============ ZONE CHANGE REVEAL ============
+
+interface ZoneChangeRevealProps {
+    isOpen: boolean;
+    onClose: () => void;
+    zoneName: string;
+    zoneTheme: string;
+    zoneColor: string;
+    floorRange: [number, number];
+}
+
+export const ZoneChangeReveal: React.FC<ZoneChangeRevealProps> = ({
+    isOpen,
+    onClose,
+    zoneName,
+    zoneTheme,
+    zoneColor,
+    floorRange
+}) => {
+    const [phase, setPhase] = useState<'shaking' | 'flash' | 'reveal'>('shaking');
+
+    useEffect(() => {
+        if (isOpen) {
+            setPhase('shaking');
+            const t1 = setTimeout(() => setPhase('flash'), 800);
+            const t2 = setTimeout(() => setPhase('reveal'), 1100);
+            return () => { clearTimeout(t1); clearTimeout(t2); };
+        }
+    }, [isOpen]);
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <motion.div
+                    className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                >
+                    <motion.div className="absolute inset-0 bg-black/95 backdrop-blur-md" />
+
+                    {/* Background Visuals specific to zone color */}
+                    {phase === 'reveal' && (
+                        <motion.div
+                            className="absolute inset-0 flex items-center justify-center -z-10"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.3 }}
+                            transition={{ duration: 1 }}
+                        >
+                            <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+                            <div className="absolute inset-0"
+                                style={{
+                                    background: `radial-gradient(circle at center, ${zoneColor}20 0%, transparent 70%)`
+                                }}
+                            />
+                        </motion.div>
+                    )}
+
+                    {/* Rotating Beams */}
+                    {phase === 'reveal' && (
+                        <motion.div
+                            className="absolute inset-0 flex items-center justify-center -z-10"
+                            initial={{ opacity: 0, rotate: 0 }}
+                            animate={{ opacity: 0.5, rotate: -360 }}
+                            transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+                        >
+                            {[...Array(8)].map((_, i) => (
+                                <div
+                                    key={i}
+                                    className="absolute w-[4px] h-[150vmax] origin-[50%_0%]"
+                                    style={{
+                                        backgroundColor: zoneColor,
+                                        transform: `rotate(${i * 45}deg) translateY(50%)`,
+                                        boxShadow: `0 0 60px 5px ${zoneColor}`
+                                    }}
+                                />
+                            ))}
+                        </motion.div>
+                    )}
+
+                    {/* Flash Effect */}
+                    {phase === 'flash' && (
+                        <motion.div
+                            className="absolute inset-0 z-50 bg-white"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: [0, 1, 0] }}
+                            transition={{ duration: 0.4 }}
+                        />
+                    )}
+
+                    <div className="relative z-10 flex flex-col items-center px-4 w-full max-w-lg">
+
+                        {/* Shaking Phase */}
+                        {phase === 'shaking' && (
+                            <motion.div
+                                className="w-40 h-40 rounded-full flex items-center justify-center border-4 relative"
+                                style={{ borderColor: zoneColor, backgroundColor: `${zoneColor}20`, boxShadow: `0 0 50px ${zoneColor}` }}
+                                animate={{ rotate: [0, -5, 5, -5, 5, 0], scale: [1, 1.1, 1] }}
+                                transition={{ duration: 0.4, repeat: Infinity }}
+                            >
+                                <div className="absolute inset-2 rounded-full border border-white/20 animate-ping" />
+                                <Crown size={64} style={{ color: zoneColor }} />
+                            </motion.div>
+                        )}
+
+                        {/* REVEAL CONTENT */}
+                        {phase === 'reveal' && (
+                            <motion.div
+                                className="flex flex-col items-center text-center w-full"
+                                initial={{ opacity: 0, scale: 0.5, y: 50 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                            >
+                                {/* NEW ZONE Badge */}
+                                <motion.div
+                                    initial={{ y: -50, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    className="mb-8"
+                                >
+                                    <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full border bg-slate-900/80 backdrop-blur-sm" style={{ borderColor: zoneColor }}>
+                                        <Sparkles size={20} style={{ color: zoneColor }} />
+                                        <span className="text-sm font-black uppercase tracking-[0.2em]" style={{ color: zoneColor }}>
+                                            Nueva Zona Desbloqueada
+                                        </span>
+                                        <Sparkles size={20} style={{ color: zoneColor }} />
+                                    </div>
+                                </motion.div>
+
+                                {/* Zone Name */}
+                                <motion.h1
+                                    className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter mb-4"
+                                    style={{
+                                        color: '#fff',
+                                        textShadow: `0 0 40px ${zoneColor}, 0 0 80px ${zoneColor}`
+                                    }}
+                                    initial={{ scale: 0.9, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.2, type: "spring" }}
+                                >
+                                    {zoneName}
+                                </motion.h1>
+
+                                {/* Theme & Range */}
+                                <motion.div delay={0.4} className="flex flex-col gap-2 items-center mb-10">
+                                    <p className="text-xl font-medium tracking-widest uppercase text-slate-300">
+                                        Tema: <span style={{ color: zoneColor }} className="font-bold">{zoneTheme}</span>
+                                    </p>
+                                    <div className="flex items-center gap-3 text-slate-400 text-sm font-mono bg-slate-900/50 px-4 py-1 rounded-lg border border-white/10">
+                                        <span>Pisos {floorRange[0]} - {floorRange[1]}</span>
+                                    </div>
+                                </motion.div>
+
+                                {/* Decoration Line */}
+                                <motion.div
+                                    className="w-24 h-1 rounded-full mb-10"
+                                    style={{ backgroundColor: zoneColor, boxShadow: `0 0 20px ${zoneColor}` }}
+                                    initial={{ width: 0 }}
+                                    animate={{ width: 100 }}
+                                    transition={{ delay: 0.5, duration: 0.8 }}
+                                />
+
+                                {/* Action Button */}
+                                <motion.button
+                                    initial={{ opacity: 0, y: 30 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 1 }}
+                                    onClick={onClose}
+                                    className="group relative px-10 py-4 overflow-hidden rounded-xl bg-slate-900 border border-slate-700 hover:border-white transition-all duration-300"
+                                >
+                                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                                    <span className="relative font-black uppercase tracking-widest text-white group-hover:text-white transition-colors">
+                                        Adentrarse
+                                    </span>
+                                </motion.button>
+
+                            </motion.div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+    );
+};
