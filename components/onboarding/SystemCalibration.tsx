@@ -113,7 +113,7 @@ export const SystemCalibration: React.FC = () => {
                                 System Calibration
                             </motion.span>
                         </div>
-                        <div className="text-[10px] font-mono text-slate-500">AUTH: LV{state.stats.level}</div>
+                        <div className="text-[10px] font-mono text-slate-500">PLAYER: {name ? name.toUpperCase() : 'UNKNOWN'}</div>
                     </div>
 
                     <AnimatePresence mode="wait">
@@ -131,7 +131,7 @@ export const SystemCalibration: React.FC = () => {
                                     <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
                                         <p className="text-[10px] text-blue-300 font-mono flex items-center gap-2">
                                             <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse" />
-                                            INITIALIZING_CORE_RESONANCE_V2.9
+                                            SYSTEM SYNC IN PROGRESS...
                                         </p>
                                     </div>
                                 </div>
@@ -228,7 +228,7 @@ export const SystemCalibration: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-end">
                                         <label className="text-xs font-black text-blue-400 uppercase tracking-widest">Primary Directive</label>
-                                        <span className="text-[9px] font-mono text-slate-500">SELECT_PATH</span>
+                                        <span className="text-[9px] font-mono text-slate-500">CHOOSE YOUR PATH</span>
                                     </div>
 
                                     <div className="space-y-3">
@@ -274,7 +274,7 @@ export const SystemCalibration: React.FC = () => {
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-end">
                                         <label className="text-xs font-black text-blue-400 uppercase tracking-widest">Mana Resonance</label>
-                                        <span className="text-[9px] font-mono text-slate-500">SYNC_ESSENCE</span>
+                                        <span className="text-[9px] font-mono text-slate-500">SELECT FOCUS ATTRIBUTE</span>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
@@ -319,7 +319,7 @@ export const SystemCalibration: React.FC = () => {
                             >
                                 <div className="text-center space-y-2">
                                     <h3 className="text-blue-400 text-xs font-black tracking-[0.5em] uppercase">Hunter Rank Evaluation</h3>
-                                    <p className="text-slate-500 text-[10px] font-mono">SCANNING_MANA_RESONANCE...</p>
+                                    <p className="text-slate-500 text-[10px] font-mono">MEASURING MANA CAPACITY...</p>
                                 </div>
 
                                 <motion.div
@@ -357,7 +357,7 @@ export const SystemCalibration: React.FC = () => {
 
                     {/* Footer HUD */}
                     <div className="mt-8 pt-6 border-t border-slate-800/50 flex justify-between items-center text-[8px] font-mono text-slate-600">
-                        <div>GPS_LOC: CALIBRATING...</div>
+                        <div>LOCATION: [UNKNOWN_DUNGEON]</div>
                         <div className="flex gap-2 text-blue-500/30 font-bold uppercase tracking-tighter">
                             <span>Step_{step + 1}</span>
                             <div className="flex gap-1 items-center">
