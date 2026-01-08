@@ -353,6 +353,10 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
                         focusStat: data.focusStat,
                         calibratedAt: now.toISOString()
                     },
+                    stats: {
+                        ...store.state.stats,
+                        name: data.name
+                    },
                     bodyRecords: [newRecord, ...store.state.bodyRecords],
                     logs: [
                         createLog('Sistema', 'Evaluación de Rango', 'Resultado: Rango E (Despertar de Nivel Bajo)'),
