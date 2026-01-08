@@ -21,11 +21,12 @@ interface ProfileViewProps {
   onOpenSeason?: () => void;
   onEquipTitle: (id: TitleId | null) => void;
   onEquipFrame: (id: AvatarFrameId) => void;
+  userObjectives?: { mainGoal: string; focusStat: string; calibratedAt: string };
   language: 'en' | 'es';
   maxReachedFloor: number;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ stats, effectiveStats, totalPower, shards, milestones = [], season, seasonProgress, onOpenSeason, onEquipTitle, onEquipFrame, language, maxReachedFloor }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ stats, effectiveStats, totalPower, shards, milestones = [], season, seasonProgress, onOpenSeason, onEquipTitle, onEquipFrame, userObjectives, language, maxReachedFloor }) => {
 
   const [activeTab, setActiveTab] = useState<'Stats' | 'Titles' | 'Frames'>('Stats');
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -87,6 +88,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ stats, effectiveStats,
         totalPower={totalPower}
         shards={shards}
         onEditProfile={() => { setTempName(profile.name); setIsEditOpen(true); }}
+        userObjectives={userObjectives}
         language={language}
       />
 

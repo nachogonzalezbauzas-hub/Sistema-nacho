@@ -15,6 +15,7 @@ interface ProfileHeaderProps {
     language: 'en' | 'es';
     totalPower: number;
     shards: number;
+    userObjectives?: { mainGoal: string; focusStat: string; calibratedAt: string };
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -26,6 +27,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     language,
     totalPower,
     shards,
+    userObjectives,
 }) => {
     const [isFlipped, setIsFlipped] = useState(false);
 
@@ -376,7 +378,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                 <div className="space-y-1">
                                     <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Calibration Objective</div>
                                     <div className="text-sm font-black text-cyan-400 tracking-wider">
-                                        {(stats as any).userObjectives?.mainGoal || 'SYSTEM SYNCHRONIZATION PENDING'}
+                                        {userObjectives?.mainGoal || 'SYSTEM SYNCHRONIZATION PENDING'}
                                     </div>
                                     <div className="text-[9px] text-slate-500 font-mono">PRIMARY_DIRECTIVE</div>
                                 </div>
@@ -385,7 +387,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                 <div className="space-y-1">
                                     <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Calibrated At</div>
                                     <div className="text-lg font-mono text-white/80">
-                                        {(stats as any).userObjectives?.calibratedAt ? new Date((stats as any).userObjectives.calibratedAt).toLocaleDateString() : 'N/A'}
+                                        {userObjectives?.calibratedAt ? new Date(userObjectives.calibratedAt).toLocaleDateString() : 'N/A'}
                                     </div>
                                 </div>
 

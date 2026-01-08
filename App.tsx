@@ -304,6 +304,7 @@ const GameContent = () => {
         onOpenSeason={() => setCurrentTab('Season')}
         onEquipTitle={equipTitle}
         onEquipFrame={equipFrame}
+        userObjectives={state.userObjectives}
         language={state.settings.language}
         maxReachedFloor={(state.dungeonRuns || [])
           .filter(r => r.victory)
