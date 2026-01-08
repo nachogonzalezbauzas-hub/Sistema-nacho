@@ -26,7 +26,7 @@ export interface SystemSlice {
     setLanguage: (lang: 'en' | 'es') => void;
     queueReward: (reward: import('@/types').RewardItem) => void;
     checkDailyShopRefresh: () => void;
-    completeOnboarding: (objectives: { mainGoal: string; focusStat: string }) => void;
+    completeOnboarding: (data: { name: string; mainGoal: string; focusStat: string; weight: number; sleepHours: number }) => void;
 }
 
 export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (set, get) => ({
@@ -320,21 +320,48 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
 
         return { success: false, message: "Invalid Access Code" };
     },
-    completeOnboarding: (objectives) => {
-        set((store) => ({
-            state: {
-                ...store.state,
-                onboardingCompleted: true,
-                userObjectives: {
-                    ...objectives,
-                    calibratedAt: new Date().toISOString()
-                },
-                logs: [
-                    createLog('Sistema', 'Calibración Completada', 'Sincronización con el Jugador establecida. Objetivos fijados.'),
-                    ...store.state.logs
-                ]
+    completeOnboarding: (data) => {
+        set((store) => {
+            const now = new Date();
+            const dateStr = now.toISOString().split('T')[0];
+
+            // 1. Update Profile in LocalStorage (side effect, but consistent with existing logic)
+            try {
+                const currentProfile = JSON.parse(localStorage.getItem('hunterProfile') || '{"name":"Sung Jin-Woo", "avatar":"default"}');
+                localStorage.setItem('hunterProfile', JSON.stringify({ ...currentProfile, name: data.name }));
+            } catch (e) {
+                console.error("Failed to update hunterProfile in localStorage", e);
             }
-        }));
+
+            // 2. Create Initial Body Record
+            const newRecord: import('@/types').BodyRecord = {
+                id: uuidv4(),
+                date: dateStr,
+                weight: data.weight,
+                sleepHours: data.sleepHours,
+                notes: 'System Initialization Sync',
+                healthScore: 70 // Base initialization score
+            };
+
+            // 3. Update State
+            return {
+                state: {
+                    ...store.state,
+                    onboardingCompleted: true,
+                    userObjectives: {
+                        mainGoal: data.mainGoal,
+                        focusStat: data.focusStat,
+                        calibratedAt: now.toISOString()
+                    },
+                    bodyRecords: [newRecord, ...store.state.bodyRecords],
+                    logs: [
+                        createLog('Sistema', 'Evaluación de Rango', 'Resultado: Rango E (Despertar de Nivel Bajo)'),
+                        createLog('Sistema', 'Calibración Completada', `Parámetros de ${data.name} sincronizados.`),
+                        ...store.state.logs
+                    ]
+                }
+            };
+        });
     }
 });
 
