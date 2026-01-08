@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 import { AppState, UserStats, TitleId, AvatarFrameId, EffectiveStats, Title } from '@/types';
 import { TITLES, AVATAR_FRAMES } from '@/data/titles';
 import { createLog } from '@/store/utils';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { calculateLevel } from '@/utils/progression';
 
 export interface UserSlice {

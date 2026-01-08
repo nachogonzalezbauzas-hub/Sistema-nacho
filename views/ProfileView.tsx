@@ -52,7 +52,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ stats, effectiveStats,
 
   // Derived Values
   const currentFrame = useMemo(() => {
-    const allFrames = [...AVATAR_FRAMES, ...(stats.customFrames || [])];
+    const allFrames = [...AVATAR_FRAMES, ...(stats.customFrames || [])].filter(f => !f.id.startsWith('zone_'));
     return (
       allFrames.find((f) => f.id === stats.selectedFrameId) ||
       AVATAR_FRAMES[0]
@@ -60,7 +60,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ stats, effectiveStats,
   }, [stats.selectedFrameId, stats.customFrames]);
 
   const currentTitle = useMemo(() => {
-    const allTitles = [...TITLES, ...(stats.customTitles || [])];
+    const allTitles = [...TITLES, ...(stats.customTitles || [])].filter(t => !t.id.startsWith('zone_'));
     return allTitles.find((t) => t.id === stats.equippedTitleId);
   }, [stats.equippedTitleId, stats.customTitles]);
 

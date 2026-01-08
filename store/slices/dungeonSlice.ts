@@ -1,5 +1,6 @@
 import { StateCreator } from 'zustand';
 import { DungeonRunResult, BossDefinition, Shadow } from '@/types';
+import { getZoneInfo } from '@/data/zoneSystem';
 import { ALL_DUNGEONS } from '@/dungeons/dungeonGenerator';
 import { calculateDungeonRewards } from '@/dungeons/rewardGenerator';
 import { createLog } from '@/store/utils';
@@ -7,7 +8,7 @@ import { TITLES, AVATAR_FRAMES } from '@/data/titles';
 import { recomputeTitlesAndFrames } from './userSlice';
 import { calculateLevel } from '@/utils/progression';
 import { calculateTotalPower } from '@/store/selectors';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface DungeonSlice {
@@ -46,10 +47,13 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                 const floor = parseInt(dungeonId.split('_')[1] || '0');
                 // Ensure zone state is initialized, default to 150 (Zone 1 limit)
                 const currentZone = state.zone?.currentZone || 1;
-                const maxUnlocked = state.zone?.maxUnlockedFloor || 150;
+
+                // Use robust calculation: Get the hard limit from the Zone Definition
+                const zoneInfo = getZoneInfo(currentZone);
+                const maxUnlocked = zoneInfo.floorRange[1];
 
                 // Strict Check: If floor > maxUnlocked, BLOCK IT.
-                // Exception: If we just beat the boss, the maxUnlocked should have increased.
+                // This prevents users from "skipping" the boss or continuing if the state didn't update.
                 if (floor > maxUnlocked) {
                     console.warn(`[ZoneGuard] Blocked entry to Floor ${floor}. Zone limit is ${maxUnlocked}.`);
 
@@ -71,12 +75,7 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
             let userPower = calculateTotalPower(state);
 
             // Fallback if power is 0 (debug)
-            if (userPower === 0 && state.stats) {
-                console.warn("calculateTotalPower returned 0. Using fallback.");
-                const SCALE = 12;
-                const statTotal = (state.stats.strength + state.stats.vitality + state.stats.agility + state.stats.intelligence + state.stats.fortune + state.stats.metabolism);
-                userPower = statTotal * SCALE * 10;
-            }
+
 
             const requiredPower = dungeon.recommendedPower || 0;
 
@@ -107,7 +106,6 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                 let nextState = { ...store.state };
                 let prev = store.state;
 
-                // Only apply rewards on victory
                 // Only apply rewards on victory
                 if (victory) {
                     nextState.dungeonRuns = [runResult, ...(nextState.dungeonRuns || [])];
@@ -251,7 +249,9 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                                 shadow.xpToNextEvolution = shadow.evolutionLevel === 1 ? 2000 : Infinity;
 
                                 // Add evolution to reward queue
-                                newRewardQueue.push({
+                                // Add evolution to reward queue
+                                if (!nextState.rewardQueue) nextState.rewardQueue = [];
+                                nextState.rewardQueue.push({
                                     id: `shadow_evolve_${shadow.id}_${Date.now()}`,
                                     type: 'shadow',
                                     name: `${shadow.name} ${stageName}`,
@@ -282,6 +282,11 @@ export const createDungeonSlice: StateCreator<GameStore, [], [], DungeonSlice> =
                 // Check Achievements
                 return { state: recomputeTitlesAndFrames(nextState) };
             });
+
+            // U52 FIX: Trigger Zone Check IMMEDIATELY after victory so players don't miss the boss prompt
+            if (victory) {
+                get().checkZoneThreshold();
+            }
 
             return { result: runResult, boss: dungeon.boss };
         } catch (error) {

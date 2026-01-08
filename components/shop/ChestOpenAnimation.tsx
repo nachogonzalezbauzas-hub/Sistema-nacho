@@ -4,6 +4,7 @@ import { Package, Sparkles, X, RefreshCw, Backpack, Star, Zap } from 'lucide-rea
 import { Equipment, ItemRarity, StatType } from '@/types';
 import { StatIcon } from '@/components';
 import { rarityColors } from '@/data/rarityColors';
+import { calculateItemPower } from '@/data/equipmentConstants';
 
 interface ChestOpenAnimationProps {
     isOpen: boolean;
@@ -306,11 +307,24 @@ export const ChestOpenAnimation: React.FC<ChestOpenAnimationProps> = ({
                                             </div>
                                         </div>
                                     </div>
+
+                                    {/* Power Score */}
+                                    <motion.div
+                                        className="mt-3 flex items-center justify-center gap-2 border-t border-slate-800/50 pt-3"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.7 }}
+                                    >
+                                        <Zap size={14} className="text-yellow-400" fill="currentColor" />
+                                        <span className="text-sm font-bold text-yellow-400 uppercase tracking-wider">
+                                            Power: {calculateItemPower(reward).toLocaleString()}
+                                        </span>
+                                    </motion.div>
                                 </motion.div>
 
                                 {/* Action Buttons */}
                                 <motion.div
-                                    className="mt-8 flex gap-4 w-full justify-center"
+                                    className="mt-6 flex gap-4 w-full justify-center"
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.8 }}

@@ -3,7 +3,7 @@ import { Equipment, QuestShopItem, RewardItem, ItemRarity } from '@/types';
 import { generateEquipment } from '@/data/equipmentGenerator';
 import { getMaxLevel, calculateSalvageValue, isRarityLower } from '@/data/equipmentConstants';
 import { createLog } from '@/store/utils';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 
 export interface InventorySlice {
     equipItem: (itemId: string) => void;
@@ -257,7 +257,7 @@ export const createInventorySlice: StateCreator<GameStore, [], [], InventorySlic
         const prev = get().state;
         if (prev.shards < cost) return;
 
-        const newItem = generateEquipment(undefined, rarity, prev.stats.level);
+        const newItem = generateEquipment(undefined, rarity, prev.stats.level, 1, undefined, { skipGlobalAnimation: true });
 
         // Call the callback with the generated item for animation
         if (onItemGenerated) {

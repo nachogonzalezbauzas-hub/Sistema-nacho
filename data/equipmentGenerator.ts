@@ -4,7 +4,7 @@ import { RARITY_ORDER } from './equipmentConstants';
 // Simple ID generator to avoid external dependency
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-// Base Rarity Weights (Standard World)
+// Base Rarity Weights (Simplified V2.0)
 const RARITY_WEIGHTS: Record<ItemRarity, number> = {
     common: 50,
     uncommon: 30,
@@ -12,88 +12,20 @@ const RARITY_WEIGHTS: Record<ItemRarity, number> = {
     epic: 4,
     legendary: 0.9,
     mythic: 0.1,
-    godlike: 0.01,
-    celestial: 0.001,
-    transcendent: 0.0001,
-    primordial: 0.00001,
-    eternal: 0.000001,
-    divine: 0.0000001,
-    cosmic: 0.00000001,
-    infinite: 0.000000001,
-
-    // Zone Rarities (Default: Near Zero outside their zone)
-    magma: 0.0000001,
-    abyssal: 0.0000001,
-    verdant: 0.0000001,
-    storm: 0.0000001,
-    lunar: 0.0000001,
-    solar: 0.0000001,
-    nebula: 0.0000001,
-    singularity: 0.0000001,
-    nova: 0.0000001,
-    cyber: 0.0000001,
-    crystal: 0.0000001,
-    ethereal: 0.0000001,
-    crimson: 0.0000001,
-    heavenly: 0.0000001,
-    antimatter: 0.0000001,
-    temporal: 0.0000001,
-    chaotic: 0.0000001,
-    void: 0.0000001,
-    omega: 0.0000001
+    godlike: 0.01
 };
 
-// Stat Ranges by Rarity
-// REBALANCED: Equipment now provides small bonuses, missions are main stat source
-// A mission gives +1 stat, so equipment should only give a modest boost
+// Stat Ranges by Rarity (ULTRA COMPRESSED V2.1)
+// Goal: Equipment is a MINOR supplement. 
+// A full day of missions gives +10-15 stats. A legendary item gives ~5-10.
 const BASE_STAT_RANGES: Record<ItemRarity, [number, number]> = {
-    common: [1, 2],         // +1-2 per stat
-    uncommon: [2, 3],       // +2-3 per stat  
-    rare: [3, 5],           // +3-5 per stat (was 10-15!)
-    epic: [5, 7],           // +5-7 per stat (was 15-25!)
-    legendary: [7, 10],     // +7-10 per stat (was 25-40!)
-    mythic: [10, 14],       // +10-14 per stat
-    godlike: [14, 18],      // +14-18 per stat
-    celestial: [18, 24],    // Floor 120
-    transcendent: [24, 30], // Floor 100
-    primordial: [30, 38],   // Floor 140
-
-    // Zone 1: Magma (Floor 150)
-    magma: [38, 46],
-
-    // Zone 2: Abyssal (Floor 200)
-    abyssal: [46, 56],
-
-    // High Tier Generics
-    eternal: [56, 66],       // Floor 220
-    divine: [66, 78],        // Floor 240
-
-    // Zone 3: Verdant (Floor 250)
-    verdant: [78, 90],
-
-    // Zone 4: Storm (Floor 300)
-    storm: [90, 105],
-
-    cosmic: [105, 120],      // Floor 320
-    infinite: [120, 140],    // Floor 340
-
-    // Zone 5+: High End
-    lunar: [140, 160],       // Floor 350
-    solar: [160, 185],       // Floor 400
-    nebula: [185, 215],      // Floor 450
-    singularity: [215, 250], // Floor 500
-    nova: [250, 290],        // Floor 550
-
-    cyber: [290, 340],       // Floor 600
-    crystal: [340, 400],     // Floor 650
-    ethereal: [400, 470],    // Floor 700
-    crimson: [470, 550],     // Floor 750
-    heavenly: [550, 650],    // Floor 800
-    antimatter: [650, 770],  // Floor 850
-    temporal: [770, 900],    // Floor 900
-    chaotic: [900, 1050],    // Floor 950
-    void: [1050, 1250],      // Floor 1000
-    omega: [1250, 1500]      // Floor 1100+
+    common: [0, 0],
+    uncommon: [0, 1],
+    rare: [1, 2],
+    epic: [2, 3], // Tightened (v2.1.1)
+    legendary: [4, 6], // Tightened (v2.1.1)
+    mythic: [8, 12], // Tightened (v2.1.1)
+    godlike: [15, 25] // Tightened (v2.1.1)
 };
 
 const STAT_TYPES: StatType[] = ['Strength', 'Vitality', 'Agility', 'Intelligence', 'Fortune', 'Metabolism'];
@@ -167,7 +99,10 @@ const WEAPON_SKINS = [
 // Used to map list of names to type? No, existing code used Object.keys(EQUIPMENT_NAMES) which is likely defined elsewhere or legacy.
 // We will use Object.keys(ROOTS) instead.
 
-export const generateEquipment = (type?: EquipmentType, rarityOverride?: ItemRarity, level: number = 1, difficulty: number = 1, zoneId?: number): Equipment => {
+const GENERATOR_VERSION = 21;
+console.log(`%c[SYSTEM] Equipment Generator v${GENERATOR_VERSION} initialized`, 'color: #3b82f6; font-weight: bold;');
+
+export const generateEquipment = (type?: EquipmentType, rarityOverride?: ItemRarity, playerLevel: number = 1, difficulty: number = 1, zoneId?: number, options?: { skipGlobalAnimation?: boolean }): Equipment => {
     // 1. Determine Type
     const possibleTypes = Object.keys(ROOTS) as EquipmentType[];
     const selectedType = type || possibleTypes[Math.floor(Math.random() * possibleTypes.length)];
@@ -182,49 +117,21 @@ export const generateEquipment = (type?: EquipmentType, rarityOverride?: ItemRar
 
         const weights = { ...RARITY_WEIGHTS };
 
-        // --- ZONE BOOST LOGIC ---
-        // Boost rarities based on Zone ID OR Difficulty Thresholds
-
-        // 1. Explicit Zone ID Boost (Strongest)
-        if (zoneId) {
-            if (zoneId >= 2) weights.magma += 10;
-            if (zoneId >= 3) weights.abyssal += 10;
-            if (zoneId >= 4) weights.verdant += 10;
-            if (zoneId >= 5) weights.storm += 10;
-            if (zoneId >= 6) weights.lunar += 10;
-            if (zoneId >= 7) weights.solar += 10;
-            if (zoneId >= 8) weights.nebula += 10;
-            if (zoneId >= 9) weights.singularity += 10;
-            if (zoneId >= 10) weights.nova += 10;
-            // ... extend as needed
-        }
-        // 2. Difficulty Auto-Scale (Fallback)
-        else {
-            if (difficulty >= 150) weights.magma += 5;
-            if (difficulty >= 200) weights.abyssal += 5;
-            if (difficulty >= 250) weights.verdant += 5;
-            if (difficulty >= 300) weights.storm += 5;
-            if (difficulty >= 350) weights.lunar += 5;
-            if (difficulty >= 400) weights.solar += 5;
-            if (difficulty >= 450) weights.nebula += 5;
-            if (difficulty >= 500) weights.singularity += 5;
-            if (difficulty >= 550) weights.nova += 5;
-            if (difficulty >= 600) weights.cyber += 5;
-            if (difficulty >= 1100) weights.omega += 5;
-        }
-
-        if (difficulty >= 3) {
-            weights.common = Math.max(0, weights.common - difficultyBonus);
-            weights.uncommon = Math.max(0, weights.uncommon - difficultyBonus);
-            weights.rare += difficultyBonus;
-            weights.epic += difficultyBonus / 2;
-        }
-        if (difficulty >= 50) {
-            weights.legendary += 5;
-            weights.mythic += 2;
-        }
+        // --- SIMPLIFIED WEIGHT LOGIC V2.0 ---
         if (difficulty >= 100) {
             weights.godlike += 2;
+            weights.mythic += 5;
+            weights.legendary += 10;
+        } else if (difficulty >= 50) {
+            weights.mythic += 1;
+            weights.legendary += 5;
+            weights.epic += 10;
+        }
+
+        if (difficulty >= 10) {
+            weights.common = Math.max(5, weights.common - difficultyBonus);
+            weights.uncommon = Math.max(10, weights.uncommon - difficultyBonus);
+            weights.rare += difficultyBonus;
         }
 
         const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
@@ -265,15 +172,28 @@ export const generateEquipment = (type?: EquipmentType, rarityOverride?: ItemRar
         image = skin.image;
     }
 
-    // 5. Generate Stats
-    // Number of stats scales with rarity
+    // 5. Generate Stats (V2.1.1 Hardened)
+    // Explicit mapping to prevent index-based errors or inflation
     let numStats = 1;
-    const rIndex = RARITY_ORDER.indexOf(selectedRarity);
-    if (rIndex > 0) numStats = 2; // Uncommon
-    if (rIndex > 2) numStats = 3; // Epic
-    if (rIndex > 4) numStats = 4; // Legendary
-    if (rIndex > 5) numStats = 5; // Mythic+
-    if (rIndex > 10) numStats = 6; // Zone+
+    switch (selectedRarity.toLowerCase().trim()) {
+        case 'common':
+        case 'uncommon':
+            numStats = 1;
+            break;
+        case 'rare':
+        case 'epic':
+            numStats = 2; // ENFORCED MAX 2
+            break;
+        case 'legendary':
+        case 'mythic':
+            numStats = 3;
+            break;
+        case 'godlike':
+            numStats = 4;
+            break;
+        default:
+            numStats = 1;
+    }
 
     const baseStats = [];
     const availableStats = [...STAT_TYPES];
@@ -283,15 +203,28 @@ export const generateEquipment = (type?: EquipmentType, rarityOverride?: ItemRar
         const statIndex = Math.floor(Math.random() * availableStats.length);
         const stat = availableStats.splice(statIndex, 1)[0];
 
-        // Safety fallback if rarity missing from ranges
-        const range = BASE_STAT_RANGES[selectedRarity] || [5, 10];
+        // FINAL VALIDATION: Ensure only core stats are ever picked
+        if (!STAT_TYPES.includes(stat)) {
+            console.error(`[CRITICAL] Illegal stat detected during generation: ${stat}`);
+            continue;
+        }
+
+        const range = BASE_STAT_RANGES[selectedRarity] || [0, 0];
         const [min, max] = range;
 
-        // Add random variance based on level
-        const levelBonus = Math.min(10, Math.floor(level * 0.2));
+        // Level bonus (ULTRA NERF V2.1): +1 stat every 100 levels
+        // Uses 'playerLevel' for scaling, NOT for the item's enhancement level
+        const levelBonus = Math.floor(playerLevel * 0.01);
         const finalValue = Math.floor(Math.random() * (max - min + 1)) + min + levelBonus;
 
-        baseStats.push({ stat, value: finalValue });
+        if (finalValue > 0) {
+            baseStats.push({ stat, value: finalValue });
+        }
+    }
+
+    // Default to at least one +0 stat if everything rolled 0 to avoid empty stats array
+    if (baseStats.length === 0) {
+        baseStats.push({ stat: STAT_TYPES[Math.floor(Math.random() * STAT_TYPES.length)], value: 0 });
     }
 
     return {
@@ -299,13 +232,15 @@ export const generateEquipment = (type?: EquipmentType, rarityOverride?: ItemRar
         name,
         type: selectedType,
         rarity: selectedRarity,
-        level: level,
-        maxLevel: 10 + Math.floor(level / 5),
+        level: 0, // DROPS AT +0 (V2.1.2 Fixed)
+        maxLevel: 10, // Default to 10 for safety, constants will override in UI if needed
         baseStats,
         description: `A unique ${selectedRarity} ${selectedType}, forged from the essence of ${prefix}.`,
         image,
         isEquipped: false,
-        acquiredAt: new Date().toISOString()
+        acquiredAt: new Date().toISOString(),
+        v: GENERATOR_VERSION, // VERSION TAG
+        ...(options || {})
     };
 };
 

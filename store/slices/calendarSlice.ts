@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand';
-import { GameStore } from '@/store/useStore';
-import { UserEvent } from '@/types';
+import { CalendarDayData, UserEvent } from '@/types';
 import { createLog } from '@/store/utils';
+import type { GameStore } from '@/store/useStore';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface CalendarSlice {

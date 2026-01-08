@@ -29,7 +29,7 @@ export const ZONE_TITLES: TitleDefinition[] = ZONES.map(zone => ({
     name: zone.rewards.titleName,
     description: `Conqueror of ${zone.name}`,
     icon: getZoneIcon(zone.theme),
-    rarity: zone.newRarity as any, // Cast to ItemRarity
+    rarity: (zone.newRarity || 'common') as any, // Default to common if not specified (e.g. Zone 1)
     textStyle: `text-${zone.visuals.primaryColor}`, // Fallback class, actual style handled by rarityColors
     glowStyle: '',
     condition: (state: any) => state.zone?.zoneGuardiansDefeated?.includes(zone.id)
@@ -39,7 +39,7 @@ export const ZONE_FRAMES: FrameDefinition[] = ZONES.map(zone => ({
     id: `zone_frame_${zone.id}`,
     name: zone.rewards.frameName,
     description: `Reward from ${zone.name}`,
-    rarity: zone.newRarity as any, // Map zone rarity to frame rarity type
+    rarity: (zone.newRarity || 'common') as any, // Default to common if not specified
     unlockDescription: `Defeat ${zone.bossName}`,
     animation: '', // Styles handled by Avatar.tsx based on rarity
     condition: (state: any) => state.zone?.zoneGuardiansDefeated?.includes(zone.id)

@@ -4,6 +4,7 @@ import { X, Sparkles, ChevronUp, Zap, Star, TrendingUp, Crown, Image, Check } fr
 import { StatType } from '@/types';
 import { StatIcon } from '@/components';
 import { useStore } from '@/store/index';
+import { rarityColors, frameRankColors } from '@/data/rarityColors';
 
 // Colors for the animations
 const XP_COLOR = '#3b82f6'; // Blue
@@ -848,17 +849,6 @@ export const CosmeticBatchReveal: React.FC<CosmeticBatchRevealProps> = ({
             color: i % 2 === 0 ? '#fbbf24' : '#22d3ee' // Gold (Titles) & Cyan (Frames) mix
         })), []);
 
-    // Helper to get rarity color
-    const getRarityColor = (rarity: string) => {
-        switch (rarity) {
-            case 'legendary': return '#a855f7'; // Purple
-            case 'epic': return '#ef4444';      // Red
-            case 'rare': return '#3b82f6';      // Blue
-            case 'uncommon': return '#22c55e';  // Green
-            default: return '#94a3b8';          // Gray
-        }
-    };
-
     return (
         <AnimatePresence>
             {isOpen && (
@@ -951,8 +941,14 @@ export const CosmeticBatchReveal: React.FC<CosmeticBatchRevealProps> = ({
                                 {/* GRID OF ITEMS */}
                                 <div className="grid grid-cols-2 gap-3 w-full max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                                     {items.map((item, i) => {
-                                        const rarity = item.cosmetic.rarity || 'common';
-                                        const color = getRarityColor(rarity);
+                                        const rarity = item.cosmetic.rarity || (item.cosmeticType === 'frame' ? 'C' : 'common');
+
+                                        // Get color options based on type
+                                        const colorOptions = item.cosmeticType === 'frame'
+                                            ? (frameRankColors[rarity] || frameRankColors['C'])
+                                            : (rarityColors[rarity] || rarityColors.common);
+
+                                        const color = colorOptions.text; // Use text color as primary
 
                                         return (
                                             <motion.div

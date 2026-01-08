@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Equipment, EquipmentSet, EquipmentType, ItemRarity } from '@/types';
 import { Sword, Shield, Zap, Crown, Star, Hammer, Trash2, Shirt, Footprints, HandMetal, Gem, Ear, Coins } from 'lucide-react';
-import { getUpgradeTier, calculateSalvageValue, getMaxLevel } from '@/data/equipmentConstants';
+import { getUpgradeTier, calculateSalvageValue, getMaxLevel, calculateItemPower } from '@/data/equipmentConstants';
 
 // --- UTILS ---
 const RARITY_STYLES: Partial<Record<ItemRarity, string>> = {
@@ -143,6 +143,14 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, onClick, onEquip, onUn
                         <span className={`font-bold ${RARITY_TEXT_STYLES[item.rarity]?.statValue || 'text-white'}`}>+{stat.value}</span>
                     </div>
                 ))}
+
+                {/* Item Power */}
+                <div className="mt-2 pt-1 border-t border-white/10 flex justify-between items-center">
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-wider">Power</span>
+                    <span className="text-xs font-black bg-gradient-to-r from-yellow-200 to-amber-500 text-transparent bg-clip-text">
+                        {calculateItemPower(item).toLocaleString()}
+                    </span>
+                </div>
             </div>
 
             {showActions && (

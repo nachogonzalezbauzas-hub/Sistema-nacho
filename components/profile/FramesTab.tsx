@@ -15,14 +15,10 @@ interface FramesTabProps {
 }
 
 export const FramesTab: React.FC<FramesTabProps> = ({ stats, onEquipFrame, language, maxReachedFloor }) => {
-    const allFrames = [...AVATAR_FRAMES, ...(stats.customFrames || [])];
+    const allFrames = [...AVATAR_FRAMES, ...(stats.customFrames || [])].filter(f => !f.id.startsWith('zone_'));
 
     const rankOrder = [
-        'common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic', 'godlike', 'celestial', 'transcendent',
-        'primordial', 'eternal', 'divine', 'cosmic', 'infinite',
-        // Zone Rarities
-        'magma', 'abyssal', 'verdant', 'storm', 'lunar', 'solar', 'nebula', 'singularity', 'nova',
-        'cyber', 'crystal', 'ethereal', 'crimson', 'heavenly', 'antimatter', 'temporal', 'chaotic', 'void', 'omega'
+        'C', 'B', 'A', 'S', 'SS', 'SSS' // Standard Hunter Ranks
     ];
 
     // Helper to map Rank to Unlock Floor (Approximate mapping for non-zone ranks)
@@ -49,30 +45,12 @@ export const FramesTab: React.FC<FramesTabProps> = ({ stats, onEquipFrame, langu
     // Helper to get color for rank header
     const getRankColor = (rank: string) => {
         const r = rank.toLowerCase();
-        if (['common', 'e'].includes(r)) return 'text-slate-400';
-        if (['uncommon', 'd'].includes(r)) return 'text-emerald-400';
-        if (['rare', 'c'].includes(r)) return 'text-sky-400';
-        if (['epic', 'b'].includes(r)) return 'text-purple-400';
-        if (['legendary', 'a'].includes(r)) return 'text-amber-400';
-        if (['mythic', 's'].includes(r)) return 'text-red-400';
-        if (['godlike', 'ss'].includes(r)) return 'text-fuchsia-400';
-        if (['celestial', 'sss'].includes(r)) return 'text-cyan-400';
-        if (['transcendent'].includes(r)) return 'text-rose-400';
-        if (['primordial'].includes(r)) return 'text-orange-400';
-        if (['eternal'].includes(r)) return 'text-teal-400';
-        if (['divine'].includes(r)) return 'text-yellow-400';
-        if (['cosmic'].includes(r)) return 'text-indigo-400';
-        if (['infinite'].includes(r)) return 'text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]';
-
-        if (['magma', 'crimson', 'antimatter'].includes(r)) return 'text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]';
-        if (['abyssal', 'ethereal', 'void'].includes(r)) return 'text-cyan-500 drop-shadow-[0_0_5px_rgba(6,182,212,0.5)]';
-        if (['verdant', 'cyber'].includes(r)) return 'text-green-500 drop-shadow-[0_0_5px_rgba(34,197,94,0.5)]';
-        if (['storm', 'singularity', 'transcendent'].includes(r)) return 'text-purple-500 drop-shadow-[0_0_5px_rgba(168,85,247,0.5)]';
-        if (['lunar', 'crystal'].includes(r)) return 'text-slate-200 drop-shadow-[0_0_5px_rgba(226,232,240,0.5)]';
-        if (['solar', 'heavenly', 'temporal'].includes(r)) return 'text-amber-400 drop-shadow-[0_0_5px_rgba(251,191,36,0.5)]';
-        if (['nebula', 'chaotic'].includes(r)) return 'text-fuchsia-400 drop-shadow-[0_0_5px_rgba(232,121,249,0.5)]';
-        if (['nova'].includes(r)) return 'text-rose-400 drop-shadow-[0_0_5px_rgba(251,113,133,0.5)]';
-        if (['omega'].includes(r)) return 'text-indigo-400 drop-shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse';
+        if (['c'].includes(r)) return 'text-sky-400';
+        if (['b'].includes(r)) return 'text-purple-400';
+        if (['a'].includes(r)) return 'text-amber-400';
+        if (['s'].includes(r)) return 'text-red-400';
+        if (['ss'].includes(r)) return 'text-fuchsia-400';
+        if (['sss'].includes(r)) return 'text-cyan-400';
 
         return 'text-slate-400';
     };

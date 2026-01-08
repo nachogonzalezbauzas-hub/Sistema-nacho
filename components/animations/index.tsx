@@ -101,24 +101,47 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
         if (event.type === 'cosmetic_unlock') {
             const cosmeticId = event.cosmetic?.id || event.cosmetic?.name;
 
-            // DEDUPLICATION: Skip if we've already shown this cosmetic
+            // 1. Global Ref Check (Persistent history)
             if (cosmeticId && shownCosmeticIdsRef.current.has(cosmeticId)) {
-                console.log('[Animation] Skipping duplicate cosmetic:', cosmeticId);
+                // console.log('[Animation] Skipping duplicate cosmetic (Ref):', cosmeticId);
                 return;
             }
 
-            // Mark as shown using Ref
+            // 2. Queue Check (Waiting to be shown)
+            const inQueue = queue.some(e =>
+                (e.type === 'cosmetic_unlock' && (e.cosmetic?.id === cosmeticId || e.cosmetic?.name === cosmeticId)) ||
+                (e.type === 'cosmetic_batch' && e.items.some(i => (i.cosmetic?.id === cosmeticId || i.cosmetic?.name === cosmeticId)))
+            );
+            if (inQueue) {
+                // console.log('[Animation] Skipping duplicate cosmetic (Queue):', cosmeticId);
+                if (cosmeticId) shownCosmeticIdsRef.current.add(cosmeticId);
+                return;
+            }
+
+            // 3. Current Event Check (Currently on screen)
+            if (currentEvent) {
+                const isCurrent = (currentEvent.type === 'cosmetic_unlock' && (currentEvent.cosmetic?.id === cosmeticId || currentEvent.cosmetic?.name === cosmeticId)) ||
+                    (currentEvent.type === 'cosmetic_batch' && currentEvent.items.some(i => (i.cosmetic?.id === cosmeticId || i.cosmetic?.name === cosmeticId)));
+
+                if (isCurrent) {
+                    // console.log('[Animation] Skipping duplicate cosmetic (Current):', cosmeticId);
+                    if (cosmeticId) shownCosmeticIdsRef.current.add(cosmeticId);
+                    return;
+                }
+            }
+
+            // Mark as known
             if (cosmeticId) {
                 shownCosmeticIdsRef.current.add(cosmeticId);
             }
 
-            // Also check if already in pending
+            // Add to pending batch
             setPendingCosmetics(prev => {
                 const alreadyPending = prev.some(p =>
                     (p.cosmetic?.id || p.cosmetic?.name) === cosmeticId
                 );
                 if (alreadyPending) {
-                    console.log('[Animation] Already pending, skipping:', cosmeticId);
+                    // console.log('[Animation] Already pending, skipping:', cosmeticId);
                     return prev;
                 }
                 return [...prev, { cosmeticType: event.cosmeticType as 'title' | 'frame', cosmetic: event.cosmetic }];
@@ -153,7 +176,7 @@ export const AnimationQueueProvider: React.FC<{ children: React.ReactNode }> = (
             // Add to queue and sort by priority
             setQueue(prev => sortByPriority([...prev, event]));
         }
-    }, [batchTimeout]); // shownCosmeticIds removed from dependencies
+    }, [batchTimeout, queue, currentEvent]); // Added queue/currentEvent deps for accurate checking
 
     const clearQueue = useCallback(() => {
         setQueue([]);

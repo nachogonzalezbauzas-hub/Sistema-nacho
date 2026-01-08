@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { ChatMessage } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 

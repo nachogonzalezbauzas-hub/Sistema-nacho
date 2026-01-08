@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserStats, EffectiveStats, SeasonDefinition, SeasonProgress, Milestone, StatType } from '@/types';
 import { StatIcon, Button, RankPill } from '@/components';
+import { RadarChart } from './RadarChart';
 import { User } from 'lucide-react';
 import { t } from '@/data/translations';
 
@@ -65,6 +66,11 @@ export const StatsTab: React.FC<StatsTabProps> = ({
 }) => {
     return (
         <div className="space-y-4">
+            {/* Visual Stats Chart */}
+            <div className="flex justify-center py-2 mb-2">
+                <RadarChart stats={effectiveStats} language={language} />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
                 {[
                     { l: 'Strength', v: effectiveStats.strength, b: stats.strength },

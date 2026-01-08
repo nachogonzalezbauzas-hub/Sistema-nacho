@@ -313,6 +313,9 @@ export const translations = {
         gear_empty_slot: 'Empty',
         gear_no_item_equipped: 'No item equipped in this slot.',
         gear_go_to_inventory: 'Go to Inventory',
+        gear_equip_best: 'Equip Best',
+
+
         gear_upgrade_title: 'BLACKSMITH FORGE',
         gear_upgrade_subtitle: 'Attempt to enhance your equipment',
         gear_unequip: 'Unequip',
@@ -473,6 +476,10 @@ export const translations = {
         rarity_chaotic: 'Chaotic',
         rarity_void: 'Void',
         rarity_omega: 'Omega',
+
+        // Overlays extra
+        overlay_shadow_evolution: 'SHADOW EVOLUTION',
+        overlay_rank_up: 'RANK UP',
 
 
     },
@@ -683,6 +690,8 @@ export const translations = {
         settings_reset_confirm_btn: 'SÍ, REINICIAR TODO',
         settings_reset_phrase: 'REINICIO DEL SISTEMA',
         overlay_new_shadow: 'Nueva Sombra Extraída',
+        overlay_shadow_evolution: 'EVOLUCIÓN DE SOMBRA',
+        overlay_rank_up: 'RANGO SUBIDO',
 
         // Logs
         logs_title: 'REGISTROS DEL SISTEMA',
@@ -790,6 +799,7 @@ export const translations = {
         gear_empty_slot: 'Vacío',
         gear_no_item_equipped: 'Ningún objeto equipado en esta ranura.',
         gear_go_to_inventory: 'Ir al Inventario',
+
 
         // Job Change
         job_title: 'CAMBIO DE CLASE',

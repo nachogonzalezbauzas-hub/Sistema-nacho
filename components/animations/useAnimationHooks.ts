@@ -10,6 +10,7 @@ import { getZoneInfo } from '../../data/zoneSystem';
  * Handles simultaneous events like level up + stat increase properly.
  */
 export const useStatChangeAnimations = () => {
+    // Reverted to stable full-state subscription to fix crash
     const { state } = useStore();
     const { enqueueAnimation } = useAnimationQueue();
 
@@ -52,7 +53,6 @@ export const useStatChangeAnimations = () => {
         for (const key of statKeys) {
             if (current[key] > prev[key]) {
                 const totalGain = current[key] - prev[key];
-                // If we leveled up, 1 point came from level up, rest from missions
                 const fromLevelUp = leveledUp ? 1 : 0;
 
                 statChanges.push({
@@ -64,7 +64,6 @@ export const useStatChangeAnimations = () => {
             }
         }
 
-        // If level up happened, queue level up animation FIRST
         if (leveledUp) {
             enqueueAnimation({
                 type: 'level_up',
@@ -72,17 +71,12 @@ export const useStatChangeAnimations = () => {
             });
         }
 
-        // Then queue individual stat animations for gains BEYOND the level up bonus
         for (const change of statChanges) {
             const missionGain = change.newValue - change.oldValue - change.fromLevelUp;
-
-            // Only show animation if there was a gain beyond the level up bonus
-            // OR if there was no level up (regular mission completion)
             if (!leveledUp || missionGain > 0) {
                 const animatedOldValue = leveledUp ? change.oldValue + change.fromLevelUp : change.oldValue;
                 const animatedNewValue = change.newValue;
 
-                // Only animate if there's actually a change to show
                 if (animatedNewValue > animatedOldValue) {
                     enqueueAnimation({
                         type: 'stat_increase',
@@ -94,7 +88,6 @@ export const useStatChangeAnimations = () => {
             }
         }
 
-        // Update ref with current values
         prevRef.current = current;
     }, [
         state?.stats?.level,
@@ -107,8 +100,7 @@ export const useStatChangeAnimations = () => {
 };
 
 /**
- * Hook that watches for cosmetic unlocks and triggers animations.
- * Uses a Set to track already-animated IDs to prevent duplicates.
+ * Hook that watches for cosmetic unlocks.
  */
 export const useCosmeticUnlockAnimations = () => {
     const { state } = useStore();
@@ -117,11 +109,9 @@ export const useCosmeticUnlockAnimations = () => {
     const isFirstLoadRef = useRef(true);
     const prevTitlesRef = useRef<string[]>([]);
     const prevFramesRef = useRef<string[]>([]);
-    // Track which IDs we've already animated to prevent duplicates
     const animatedTitlesRef = useRef<Set<string>>(new Set());
     const animatedFramesRef = useRef<Set<string>>(new Set());
 
-    // Stringify for proper comparison
     const titlesStr = JSON.stringify(state?.stats?.unlockedTitleIds || []);
     const framesStr = JSON.stringify(state?.stats?.unlockedFrameIds || []);
 
@@ -131,18 +121,15 @@ export const useCosmeticUnlockAnimations = () => {
         const currentTitles = state.stats.unlockedTitleIds || [];
         const currentFrames = state.stats.unlockedFrameIds || [];
 
-        // Skip first load - just store the initial values
         if (isFirstLoadRef.current) {
             isFirstLoadRef.current = false;
             prevTitlesRef.current = [...currentTitles];
             prevFramesRef.current = [...currentFrames];
-            // Mark all initial items as "already animated" to prevent showing them
             currentTitles.forEach(id => animatedTitlesRef.current.add(id));
             currentFrames.forEach(id => animatedFramesRef.current.add(id));
             return;
         }
 
-        // Check for new titles (not in prev AND not already animated)
         const newTitles = currentTitles.filter(id =>
             !prevTitlesRef.current.includes(id) && !animatedTitlesRef.current.has(id)
         );
@@ -150,8 +137,7 @@ export const useCosmeticUnlockAnimations = () => {
         for (const titleId of newTitles) {
             const title = TITLES.find(t => t.id === titleId);
             if (title) {
-                console.log('[Animation] Enqueuing title unlock:', title.name);
-                animatedTitlesRef.current.add(titleId); // Mark as animated
+                animatedTitlesRef.current.add(titleId);
                 enqueueAnimation({
                     type: 'cosmetic_unlock',
                     cosmeticType: 'title',
@@ -160,7 +146,6 @@ export const useCosmeticUnlockAnimations = () => {
             }
         }
 
-        // Check for new frames (not in prev AND not already animated)
         const newFrames = currentFrames.filter(id =>
             !prevFramesRef.current.includes(id) && !animatedFramesRef.current.has(id)
         );
@@ -168,8 +153,7 @@ export const useCosmeticUnlockAnimations = () => {
         for (const frameId of newFrames) {
             const frame = AVATAR_FRAMES.find(f => f.id === frameId);
             if (frame) {
-                console.log('[Animation] Enqueuing frame unlock:', frame.name);
-                animatedFramesRef.current.add(frameId); // Mark as animated
+                animatedFramesRef.current.add(frameId);
                 enqueueAnimation({
                     type: 'cosmetic_unlock',
                     cosmeticType: 'frame',
@@ -178,14 +162,13 @@ export const useCosmeticUnlockAnimations = () => {
             }
         }
 
-        // Update refs with current values
         prevTitlesRef.current = [...currentTitles];
         prevFramesRef.current = [...currentFrames];
     }, [titlesStr, framesStr, enqueueAnimation]);
 };
 
 /**
- * Hook that watches for new equipment in inventory and triggers animations.
+ * Hook that watches for new equipment.
  */
 export const useEquipmentRewardAnimations = () => {
     const { state } = useStore();
@@ -194,7 +177,6 @@ export const useEquipmentRewardAnimations = () => {
     const isFirstLoadRef = useRef(true);
     const prevInventoryIdsRef = useRef<string[]>([]);
 
-    // Stringify for proper comparison
     const inventoryStr = JSON.stringify((state?.inventory || []).map(e => e.id));
 
     useEffect(() => {
@@ -202,23 +184,19 @@ export const useEquipmentRewardAnimations = () => {
 
         const currentIds = state.inventory.map(e => e.id);
 
-        // Skip first load
         if (isFirstLoadRef.current) {
             isFirstLoadRef.current = false;
             prevInventoryIdsRef.current = [...currentIds];
             return;
         }
 
-        // Check for new equipment
         const newEquipmentIds = currentIds.filter(id => !prevInventoryIdsRef.current.includes(id));
-
-        // Only show animation for up to 3 items to avoid spam
         const itemsToAnimate = newEquipmentIds.slice(0, 3);
 
         for (const equipId of itemsToAnimate) {
             const equipment = state.inventory.find(e => e.id === equipId);
-            if (equipment) {
-                console.log('[Animation] Enqueuing equipment reward:', equipment.name);
+            // Skip if this item is marked to skip implicit global animations (e.g. from Shop)
+            if (equipment && !equipment.skipGlobalAnimation) {
                 enqueueAnimation({
                     type: 'equipment_reward',
                     equipment: equipment,
@@ -226,14 +204,12 @@ export const useEquipmentRewardAnimations = () => {
             }
         }
 
-        // Update ref with current values
         prevInventoryIdsRef.current = [...currentIds];
-    }, [inventoryStr, enqueueAnimation]);
+    }, [inventoryStr, enqueueAnimation]); // Intentionally using stringified dependency
 };
 
 /**
- * Hook that watches for XP changes and triggers animations.
- * Only triggers for significant XP gains (>= 20 XP) to avoid spam.
+ * Hook that watches for XP changes.
  */
 export const useXPGainAnimations = () => {
     const { state } = useStore();
@@ -249,7 +225,6 @@ export const useXPGainAnimations = () => {
         const level = state.stats.level;
         const xpToNextLevel = state.stats.xpForNextLevel || 100;
 
-        // Skip first load
         if (isFirstLoadRef.current) {
             isFirstLoadRef.current = false;
             prevXPRef.current = currentXP;
@@ -258,9 +233,7 @@ export const useXPGainAnimations = () => {
 
         const xpGained = currentXP - prevXPRef.current;
 
-        // Only show animation for significant XP gains (>= 20)
         if (xpGained >= 20) {
-            console.log('[Animation] Enqueuing XP gain:', xpGained);
             enqueueAnimation({
                 type: 'xp_gain',
                 xpGained: xpGained,
@@ -271,14 +244,12 @@ export const useXPGainAnimations = () => {
             });
         }
 
-        // Update ref
         prevXPRef.current = currentXP;
-    }, [state?.stats?.xpCurrent, enqueueAnimation]);
+    }, [state?.stats?.xpCurrent, enqueueAnimation, state?.stats?.level]);
 };
 
 /**
- * Hook that watches for Shards changes and triggers animations.
- * Only triggers for significant gains (>= 50 shards) to avoid spam.
+ * Hook that watches for Shards changes.
  */
 export const useShardsGainAnimations = () => {
     const { state } = useStore();
@@ -288,11 +259,10 @@ export const useShardsGainAnimations = () => {
     const prevShardsRef = useRef(0);
 
     useEffect(() => {
+        // Safe access
         if (!state) return;
-
         const currentShards = state.shards || 0;
 
-        // Skip first load
         if (isFirstLoadRef.current) {
             isFirstLoadRef.current = false;
             prevShardsRef.current = currentShards;
@@ -301,9 +271,7 @@ export const useShardsGainAnimations = () => {
 
         const shardsGained = currentShards - prevShardsRef.current;
 
-        // Only show animation for significant gains (>= 50)
         if (shardsGained >= 50) {
-            console.log('[Animation] Enqueuing shards gain:', shardsGained);
             enqueueAnimation({
                 type: 'shards_gain',
                 shardsGained: shardsGained,
@@ -311,14 +279,12 @@ export const useShardsGainAnimations = () => {
             });
         }
 
-        // Update ref
         prevShardsRef.current = currentShards;
     }, [state?.shards, enqueueAnimation]);
 };
-// End of hooks
 
 /**
- * Hook that watches for Zone changes and triggers animations.
+ * Hook that watches for Zone changes.
  */
 export const useZoneChangeAnimations = () => {
     const { state } = useStore();
@@ -332,17 +298,14 @@ export const useZoneChangeAnimations = () => {
 
         const currentZone = state.zone.currentZone || 1;
 
-        // Skip first load
         if (isFirstLoadRef.current) {
             isFirstLoadRef.current = false;
             prevZoneRef.current = currentZone;
             return;
         }
 
-        // If zone increased
         if (currentZone > prevZoneRef.current) {
             const info = getZoneInfo(currentZone);
-            console.log('[Animation] Enqueuing Zone Change:', info.name);
             enqueueAnimation({
                 type: 'zone_change',
                 zoneName: info.name,
@@ -352,7 +315,7 @@ export const useZoneChangeAnimations = () => {
             });
         }
 
-        // Update ref
         prevZoneRef.current = currentZone;
     }, [state?.zone?.currentZone, enqueueAnimation]);
 };
+

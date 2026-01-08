@@ -58,163 +58,6 @@ export const rarityStyles: Partial<Record<
             'from-fuchsia-900/60 via-indigo-900/70 to-emerald-900/70',
         textColor: 'text-cyan-100',
     },
-    celestial: {
-        labelColor: 'text-cyan-300',
-        borderColor: 'border-cyan-400',
-        bgGradient: 'from-cyan-900 via-blue-900 to-slate-900 animate-pulse-slow',
-        textColor: 'text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 via-blue-200 to-white drop-shadow-[0_0_2px_rgba(34,211,238,0.8)]',
-    },
-    transcendent: {
-        labelColor: 'text-white',
-        borderColor: 'border-white/80',
-        bgGradient: 'from-white/20 via-yellow-900/40 to-amber-900/60 animate-pulse',
-        textColor: 'text-transparent bg-clip-text bg-gradient-to-r from-white via-yellow-200 to-amber-200 drop-shadow-[0_0_4px_rgba(255,255,255,0.9)]',
-    },
-    primordial: {
-        labelColor: 'text-amber-500',
-        borderColor: 'border-amber-700',
-        bgGradient: 'from-orange-950 via-amber-900 to-black',
-        textColor: 'text-amber-300',
-    },
-    eternal: {
-        labelColor: 'text-emerald-300',
-        borderColor: 'border-emerald-500',
-        bgGradient: 'from-emerald-900 via-teal-900 to-black',
-        textColor: 'text-emerald-100',
-    },
-    divine: {
-        labelColor: 'text-yellow-100',
-        borderColor: 'border-yellow-300',
-        bgGradient: 'from-yellow-900 via-amber-800 to-black',
-        textColor: 'text-yellow-50',
-    },
-    cosmic: {
-        labelColor: 'text-indigo-300',
-        borderColor: 'border-indigo-500',
-        bgGradient: 'from-indigo-900 via-blue-900 to-black',
-        textColor: 'text-indigo-100',
-    },
-    infinite: {
-        labelColor: 'text-white',
-        borderColor: 'border-slate-400',
-        bgGradient: 'from-black via-slate-900 to-black',
-        textColor: 'text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-400 to-white animate-shine',
-    },
-    // Zone Rarities
-    magma: {
-        labelColor: 'text-red-400',
-        borderColor: 'border-red-600',
-        bgGradient: 'from-orange-900 via-red-900 to-black',
-        textColor: 'text-red-200',
-    },
-    abyssal: {
-        labelColor: 'text-cyan-400',
-        borderColor: 'border-cyan-600',
-        bgGradient: 'from-blue-900 via-cyan-900 to-black',
-        textColor: 'text-cyan-200',
-    },
-    verdant: {
-        labelColor: 'text-green-400',
-        borderColor: 'border-green-600',
-        bgGradient: 'from-green-900 via-emerald-900 to-black',
-        textColor: 'text-green-200',
-    },
-    storm: {
-        labelColor: 'text-purple-400',
-        borderColor: 'border-purple-600',
-        bgGradient: 'from-indigo-900 via-purple-900 to-black',
-        textColor: 'text-purple-200',
-    },
-    lunar: {
-        labelColor: 'text-slate-300',
-        borderColor: 'border-slate-500',
-        bgGradient: 'from-slate-800 via-slate-900 to-black',
-        textColor: 'text-slate-200',
-    },
-    solar: {
-        labelColor: 'text-amber-400',
-        borderColor: 'border-amber-600',
-        bgGradient: 'from-orange-800 via-amber-800 to-black',
-        textColor: 'text-amber-200',
-    },
-    nebula: {
-        labelColor: 'text-fuchsia-400',
-        borderColor: 'border-fuchsia-600',
-        bgGradient: 'from-pink-900 via-fuchsia-900 to-black',
-        textColor: 'text-fuchsia-200',
-    },
-    singularity: {
-        labelColor: 'text-violet-400',
-        borderColor: 'border-violet-600',
-        bgGradient: 'from-violet-950 via-black to-black',
-        textColor: 'text-violet-200',
-    },
-    nova: {
-        labelColor: 'text-rose-400',
-        borderColor: 'border-rose-600',
-        bgGradient: 'from-rose-900 via-pink-900 to-black',
-        textColor: 'text-rose-200',
-    },
-    cyber: {
-        labelColor: 'text-emerald-400',
-        borderColor: 'border-emerald-600',
-        bgGradient: 'from-green-900 via-black to-black',
-        textColor: 'text-emerald-200',
-    },
-    crystal: {
-        labelColor: 'text-teal-300',
-        borderColor: 'border-teal-500',
-        bgGradient: 'from-teal-900 via-cyan-900 to-black',
-        textColor: 'text-teal-100',
-    },
-    ethereal: {
-        labelColor: 'text-sky-300',
-        borderColor: 'border-sky-500',
-        bgGradient: 'from-sky-900 via-blue-900 to-black',
-        textColor: 'text-sky-100',
-    },
-    crimson: {
-        labelColor: 'text-red-500',
-        borderColor: 'border-red-700',
-        bgGradient: 'from-red-950 via-black to-black',
-        textColor: 'text-red-300',
-    },
-    heavenly: {
-        labelColor: 'text-yellow-200',
-        borderColor: 'border-yellow-400',
-        bgGradient: 'from-yellow-800 via-amber-800 to-black',
-        textColor: 'text-yellow-100',
-    },
-    antimatter: {
-        labelColor: 'text-white',
-        borderColor: 'border-white',
-        bgGradient: 'from-black via-gray-900 to-black',
-        textColor: 'text-white',
-    },
-    temporal: {
-        labelColor: 'text-orange-400',
-        borderColor: 'border-orange-600',
-        bgGradient: 'from-orange-900 via-amber-900 to-black',
-        textColor: 'text-orange-200',
-    },
-    chaotic: {
-        labelColor: 'text-pink-500',
-        borderColor: 'border-pink-600',
-        bgGradient: 'from-pink-900 via-rose-900 to-black',
-        textColor: 'text-pink-300',
-    },
-    void: {
-        labelColor: 'text-gray-500',
-        borderColor: 'border-gray-700',
-        bgGradient: 'from-gray-950 via-black to-black',
-        textColor: 'text-gray-400',
-    },
-    omega: {
-        labelColor: 'text-indigo-400',
-        borderColor: 'border-indigo-600',
-        bgGradient: 'from-indigo-900 via-violet-900 to-black',
-        textColor: 'text-indigo-200',
-    },
 };
 
 export const rarityLabel: Partial<Record<string, string>> = {
@@ -225,74 +68,17 @@ export const rarityLabel: Partial<Record<string, string>> = {
     legendary: 'Legendary',
     mythic: 'Mythic',
     godlike: 'Godlike',
-    celestial: 'Celestial',
-    transcendent: 'Transcendent',
-    primordial: 'Primordial',
-    eternal: 'Eternal',
-    divine: 'Divine',
-    cosmic: 'Cosmic',
-    infinite: 'Infinite',
-    // Zone Labels - Capitalize defaults
-    magma: 'Magma',
-    abyssal: 'Abyssal',
-    verdant: 'Verdant',
-    storm: 'Storm',
-    lunar: 'Lunar',
-    solar: 'Solar',
-    nebula: 'Nebula',
-    singularity: 'Singularity',
-    nova: 'Nova',
-    cyber: 'Cyber',
-    crystal: 'Crystal',
-    ethereal: 'Ethereal',
-    crimson: 'Crimson',
-    heavenly: 'Heavenly',
-    antimatter: 'Antimatter',
-    temporal: 'Temporal',
-    chaotic: 'Chaotic',
-    void: 'Void',
-    omega: 'Omega',
 };
 
 // U23.1 – animación distinta por rareza
 const rarityContainerAnimation: Partial<Record<string, string>> = {
-    transcendent: 'animate-pulse',
-    // Zone Animations - Make them feel alive
-    magma: 'animate-pulse hover:animate-shake', // Pulse like heat
-    abyssal: 'animate-float', // Float like water (need custom keyframe or just pulse) -> fallback to pulse-slow
-    storm: 'animate-pulse', // Rapid pulse
-    verdant: 'animate-pulse-slow',
-    lunar: 'animate-pulse-slow',
-    solar: 'animate-pulse',
-    nebula: 'animate-pulse-slow',
-    singularity: 'animate-pulse-slow',
-    nova: 'animate-pulse',
-    cyber: 'animate-pulse',
-    crystal: 'animate-pulse-slow',
-    ethereal: 'animate-float',
-    crimson: 'animate-pulse',
-    heavenly: 'animate-pulse-slow',
-    antimatter: 'animate-pulse-slow',
-    temporal: 'animate-pulse-slow',
-    chaotic: 'animate-shake',
-    void: 'animate-pulse-slow',
-    omega: 'animate-pulse',
-    primordial: 'animate-pulse-slow',
-    eternal: 'animate-float',
-    divine: 'animate-pulse',
-    cosmic: 'animate-pulse',
-    infinite: 'animate-pulse',
+    legendary: 'animate-pulse',
+    mythic: 'animate-pulse',
+    godlike: 'animate-pulse',
 };
 
 const rarityIconAnimation: Partial<Record<string, string>> = {
-    transcendent: 'animate-spin-slow',
-    storm: 'animate-pulse',
-    cyber: 'animate-pulse',
-    chaotic: 'animate-shake',
-    solar: 'animate-spin-slow',
-    antimatter: 'animate-spin-slow',
-    singularity: 'animate-spin-slow',
-    omega: 'animate-spin-slow'
+    godlike: 'animate-spin-slow'
 };
 
 const defaultStyle = {
@@ -333,8 +119,8 @@ export const TitleBadge: React.FC<TitleBadgeProps> = ({
         return title.icon;
     };
 
-    // Enable particles for ALL zone rarities to make them epic
-    const isPremium = ['godlike', 'celestial', 'transcendent', 'omega', 'heavenly', 'singularity', 'magma', 'abyssal', 'verdant', 'storm', 'lunar', 'solar', 'nebula', 'nova', 'cyber', 'crystal', 'ethereal', 'crimson', 'antimatter', 'temporal', 'chaotic', 'void'].includes(title.rarity);
+    // Enable particles for premium rarities
+    const isPremium = ['mythic', 'godlike'].includes(title.rarity);
 
     return (
         <button
@@ -412,7 +198,7 @@ export const TitleCard: React.FC<{ title: Title; isUnlocked: boolean; isEquipped
             : title.icon;
     };
 
-    const isPremium = ['godlike', 'celestial', 'transcendent', 'omega', 'heavenly', 'singularity', 'magma', 'abyssal', 'verdant', 'storm', 'lunar', 'solar', 'nebula', 'nova', 'cyber', 'crystal', 'ethereal', 'crimson', 'antimatter', 'temporal', 'chaotic', 'void'].includes(title.rarity);
+    const isPremium = ['mythic', 'godlike'].includes(title.rarity);
 
     return (
         <div

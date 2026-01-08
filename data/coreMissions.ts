@@ -7,7 +7,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Gym Workout',
         detail: 'Complete your scheduled gym session.',
         targetStat: 'Strength',
-        xpReward: 100,
+        xpReward: 500, // BUFFED V2.0 (Was 100)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'weekly',
@@ -20,7 +20,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Running Session',
         detail: 'Go for a run.',
         targetStat: 'Agility',
-        xpReward: 80,
+        xpReward: 400, // BUFFED V2.0 (Was 80)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'weekly',
@@ -33,7 +33,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Shave',
         detail: 'Clean shave or trim beard.',
         targetStat: 'Fortune',
-        xpReward: 40,
+        xpReward: 100, // BUFFED V2.0 (Was 40)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'weekly',
@@ -45,7 +45,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Eyebrow Maintenance',
         detail: 'Trim and shape eyebrows.',
         targetStat: 'Fortune',
-        xpReward: 30,
+        xpReward: 80, // BUFFED V2.0 (Was 30)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'weekly',
@@ -58,7 +58,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Skincare Routine',
         detail: 'Cleanse, tone, and moisturize.',
         targetStat: 'Vitality',
-        xpReward: 30,
+        xpReward: 50, // BUFFED V2.0 (Was 30)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -70,7 +70,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Brush Teeth (Morning)',
         detail: 'Morning oral hygiene.',
         targetStat: 'Vitality',
-        xpReward: 20,
+        xpReward: 40, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -82,7 +82,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Brush Teeth (Afternoon)',
         detail: 'After-lunch oral hygiene.',
         targetStat: 'Vitality',
-        xpReward: 20,
+        xpReward: 40, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -94,7 +94,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Brush Teeth (Night)',
         detail: 'Nightly oral hygiene.',
         targetStat: 'Vitality',
-        xpReward: 20,
+        xpReward: 40, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -106,7 +106,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'No Nail Biting',
         detail: 'Do not bite your nails today.',
         targetStat: 'Intelligence', // Self-control
-        xpReward: 50,
+        xpReward: 150, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -118,7 +118,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Ir a trabajar',
         detail: 'Jornada laboral de Lunes a Viernes.',
         targetStat: 'Fortune',
-        xpReward: 150,
+        xpReward: 600, // BUFFED V2.0 (Was 150)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -131,7 +131,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Leer 10 Páginas',
         detail: 'Expande tu conocimiento. Lee 10 páginas de un libro.',
         targetStat: 'Intelligence',
-        xpReward: 60,
+        xpReward: 200, // BUFFED V2.0 (Was 60)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -143,7 +143,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Meditar',
         detail: 'Despeja tu mente. Medita por al menos 10 minutos.',
         targetStat: 'Intelligence',
-        xpReward: 60,
+        xpReward: 200, // BUFFED V2.0 (Was 60)
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -155,7 +155,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Ordenar Habitación',
         detail: 'Mantén tu entorno ordenado para una mente clara.',
         targetStat: 'Fortune',
-        xpReward: 40,
+        xpReward: 150, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -167,7 +167,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'Tomar pastilla dormir',
         detail: 'Hábito nocturno para asegurar un buen descanso.',
         targetStat: 'Vitality',
-        xpReward: 30,
+        xpReward: 80, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',
@@ -179,7 +179,7 @@ export const CORE_MISSIONS: Mission[] = [
         title: 'No comer de noche',
         detail: 'Controlar la ansiedad nocturna. No comer nada tarde.',
         targetStat: 'Intelligence',
-        xpReward: 60,
+        xpReward: 200, // BUFFED V2.0
         isDaily: true,
         lastCompletedAt: null,
         frequency: 'daily',

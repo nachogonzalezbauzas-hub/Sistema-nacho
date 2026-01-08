@@ -13,7 +13,8 @@
   <meta name="apple-mobile-web-app-title" content="Sistema Nacho">
   <link rel="manifest" href="/manifest.json">
 
-  <title>Sistema Nacho</title>
+  <title>Sistema Nacho v2.6</title>
+  <!-- v2.6: Flip Card & Mobile Polish -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -309,23 +310,36 @@
     .theme-light .text-amber-400 {
       color: #d97706 !important;
     }
+
+    /* 3D Transform Utilities */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+
+    .preserve-3d {
+      transform-style: preserve-3d;
+    }
+
+    .backface-hidden {
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+    }
   </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
-  }
-}
-</script>
   <link rel="stylesheet" href="/index.css">
 </head>
 
 <body>
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+  </script>
 </body>
 
 </html>

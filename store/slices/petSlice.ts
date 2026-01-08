@@ -1,5 +1,5 @@
 import { StateCreator } from 'zustand';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { Pet, PetDefinition } from '@/types';
 import { createLog } from '@/store/utils';
 import { v4 as uuidv4 } from 'uuid';

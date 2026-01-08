@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TitleDefinition } from '@/data/titles';
+import { TitleDefinition } from '@/types';
 import { CheckCircle, Lock } from 'lucide-react';
 import { getIconByName } from '@/utils/iconMapper';
 import { rarityStyles, PremiumParticleEffect } from '@/components';

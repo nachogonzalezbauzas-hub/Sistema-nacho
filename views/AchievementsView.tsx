@@ -17,7 +17,6 @@ import { getFrameRarityColors } from '@/components';
 
 import { RARITY_UNLOCK_FLOORS } from '@/data/equipmentConstants';
 import { LockedContentPlaceholder } from '@/components/ui/LockedContentPlaceholder';
-import { ZONE_FRAMES, ZONE_TITLES } from '@/data/zoneRewards';
 
 interface AchievementsViewProps {
   state: AppState;
@@ -26,7 +25,7 @@ interface AchievementsViewProps {
   maxReachedFloor: number;
 }
 
-const ALL_FRAMES = [...BASE_FRAMES, ...SHOP_FRAMES, ...ZONE_FRAMES];
+const ALL_FRAMES = [...BASE_FRAMES, ...SHOP_FRAMES];
 
 export const AchievementsView: React.FC<AchievementsViewProps> = ({ state, onEquipTitle, language, maxReachedFloor }) => {
   const [unlockedIds, setUnlockedIds] = useState<string[]>([]);
@@ -76,15 +75,15 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({ state, onEqu
     });
   };
 
-  const DISPLAY_TITLES = sortItems([...TITLES, ...ZONE_TITLES, ...customTitles]);
-  const DISPLAY_FRAMES = sortItems([...ALL_FRAMES, ...customFrames]);
+  const DISPLAY_TITLES = sortItems([...TITLES, ...customTitles]).filter(t => !t.id.startsWith('zone_'));
+  const DISPLAY_FRAMES = sortItems([...ALL_FRAMES, ...customFrames]).filter(f => !f.id.startsWith('zone_'));
 
   if (viewMode === 'TITLES') {
-    totalUnlocked = state.stats.unlockedTitleIds.length;
+    totalUnlocked = state.stats.unlockedTitleIds.filter(id => !id.startsWith('zone_')).length;
     totalItems = DISPLAY_TITLES.length;
     progressColor = 'bg-purple-500';
   } else if (viewMode === 'FRAMES') {
-    totalUnlocked = state.stats.unlockedFrameIds.length;
+    totalUnlocked = state.stats.unlockedFrameIds.filter(id => !id.startsWith('zone_')).length;
     totalItems = DISPLAY_FRAMES.length;
     progressColor = 'bg-yellow-500';
   }

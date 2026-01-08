@@ -8,7 +8,7 @@ import {
     ZoneDefinition
 } from '@/data/zoneSystem';
 import { generateEquipment } from '@/data/equipmentGenerator';
-import { GameStore } from '../useStore';
+import type { GameStore } from '../useStore';
 
 export interface ZoneSlice {
     checkZoneThreshold: () => { triggered: boolean; zoneId?: number };
@@ -196,14 +196,18 @@ export const createZoneSlice: StateCreator<GameStore, [], [], ZoneSlice> = (set,
                         ...store.state.stats,
                         // DYNAMICALLY UNLOCK TITLE AND FRAME
                         unlockedTitleIds: [...store.state.stats.unlockedTitleIds, `zone_title_${zoneId}`],
-                        unlockedFrameIds: [...store.state.stats.unlockedFrameIds, `zone_frame_${zoneId}`]
+                        unlockedFrameIds: [...store.state.stats.unlockedFrameIds, `zone_frame_${zoneId}`],
+                        // AWARD PASSIVE POINT
+                        passivePoints: (store.state.stats.passivePoints || 0) + 1
                     },
+                    // Legacy support for root-level passivePoints
+                    passivePoints: (store.state.passivePoints || 0) + 1,
                     logs: [
                         {
                             id: uuidv4(),
                             category: 'Sistema',
                             message: `Zona Desbloqueada: ${zoneInfo.name}`,
-                            details: `¡Has extraído la sombra ${newShadow.name}!`,
+                            details: `¡Has extraído la sombra ${newShadow.name}! (+1 Punto de Habilidad)`,
                             timestamp: new Date().toISOString()
                         },
                         ...store.state.logs

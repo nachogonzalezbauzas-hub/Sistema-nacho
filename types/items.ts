@@ -81,12 +81,17 @@ export type TitleId =
 
 export type TitleRarity = ItemRarity;
 
+export type FrameAssetType = 'wings_angel' | 'wings_demon' | 'horns_demon' | 'halo_gold' | 'halo_spike' | 'crown_king' | 'dragon_claws' | 'tech_ring' | 'nature_vines';
+
 export interface Title {
     id: TitleId;
     name: string;
     description: string;
     icon: React.ReactNode | string;
     rarity: TitleRarity;
+    textStyle?: string;
+    glowStyle?: string;
+    animation?: string;
 }
 
 // --- AVATAR FRAMES ---
@@ -106,10 +111,13 @@ export interface AvatarFrame {
     description: string;
     rarity: "C" | "B" | "A" | "S" | "SS" | "SSS" | ItemRarity;
     unlockDescription: string;
-    // Optional styling for shop frames
+    // Optional styling
     borderStyle?: string;
     glowStyle?: string;
     animation?: string;
+    assetType?: FrameAssetType;
+    assetColor?: string;
+    cssClass?: string; // For generator-based frames
     condition?: (state?: any) => boolean;
 }
 
@@ -154,6 +162,8 @@ export interface Equipment {
     transmogSkinId?: string;
     acquiredAt: string;
     consecutiveFailures?: number; // Pity system: track failures for upgrade chance boost
+    skipGlobalAnimation?: boolean;
+    v?: number; // Generator version
 }
 
 // Note: EquipmentSet depends on UserStats (Partial<UserStats>), so it might need to be in features or user?

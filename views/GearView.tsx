@@ -269,7 +269,8 @@ export const GearView: React.FC<GearViewProps> = ({ state, onEquip, onUnequip, o
                                 >
                                     {RARITY_ORDER
                                         .filter(rarity => {
-                                            const unlockFloor = RARITY_UNLOCK_FLOORS[rarity] || 1;
+                                            // Default to 99999 (Locked) if not found in lookup
+                                            const unlockFloor = RARITY_UNLOCK_FLOORS[rarity] ?? 99999;
                                             return unlockFloor <= maxReachedFloor;
                                         })
                                         .map(rarity => (

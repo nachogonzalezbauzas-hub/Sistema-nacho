@@ -2,7 +2,7 @@ import { StateCreator } from 'zustand';
 import { AppState, BodyRecord, BuffId, ActiveBuff, StatType } from '@/types';
 import { createLog } from '@/store/utils';
 import { BUFF_DEFINITIONS, PASSIVE_DEFINITIONS } from '@/data/buffs';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { v4 as uuidv4 } from 'uuid';
 
 // Helper for health score

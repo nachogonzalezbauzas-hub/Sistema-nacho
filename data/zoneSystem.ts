@@ -37,7 +37,7 @@ export const ZONES: ZoneDefinition[] = [
         name: 'The System',
         theme: 'Digital',
         powerThreshold: 0,
-        newRarity: 'godlike', // Up to godlike
+        newRarity: '', // Standard rarities only
         floorRange: [1, 150],
         bossName: 'System Gatekeeper',
         bossDescription: 'The initial guardian of the system.',

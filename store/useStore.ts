@@ -181,6 +181,48 @@ export const useStore = create<GameStore>()(
                 const spentPoints = Number(Object.values(mergedState.passiveLevels || {}).reduce((a: number, b: number) => a + Number(b), 0));
                 mergedState.passivePoints = Math.max(0, totalPointsEarned - spentPoints);
 
+                // MIGRATION V2.1: Equipment Sanitation
+                // Strips legacy stats (Crit, Atk Speed) and enforces v2.1 stat compression
+                const CORE_STATS = ['Strength', 'Vitality', 'Agility', 'Intelligence', 'Fortune', 'Metabolism'];
+                const RARITY_LIMITS: Record<string, number> = {
+                    common: 1, uncommon: 1, rare: 2, epic: 2,
+                    legendary: 3, mythic: 3, godlike: 4, celestial: 4
+                };
+
+                if (mergedState.inventory && Array.isArray(mergedState.inventory)) {
+                    mergedState.inventory = mergedState.inventory.map((item: any) => {
+                        // Skip if already sanitized or special set item
+                        if (item.v === 21 || item.setId) return item;
+
+                        // 1. Filter out illegal stats
+                        let cleanedStats = (item.baseStats || []).filter((s: any) => CORE_STATS.includes(s.stat));
+
+                        // 2. If stats were removed, replace with random core stars (only if we have room)
+                        if (cleanedStats.length < 1 && item.baseStats?.length > 0) {
+                            cleanedStats.push({
+                                stat: CORE_STATS[Math.floor(Math.random() * CORE_STATS.length)],
+                                value: Math.max(1, Math.floor((item.baseStats[0]?.value || 1) / 2))
+                            });
+                        }
+
+                        // 3. Enforce rarity limits (v2.1 compression)
+                        const limit = RARITY_LIMITS[item.rarity.toLowerCase()] || 1;
+                        if (cleanedStats.length > limit) {
+                            cleanedStats = cleanedStats.slice(0, limit);
+                        }
+
+                        // 4. Update level if 0 (old items)
+                        const level = item.level || 0;
+
+                        return {
+                            ...item,
+                            baseStats: cleanedStats,
+                            level,
+                            v: 21
+                        };
+                    });
+                }
+
                 return { ...currentState, state: mergedState };
             }
         }

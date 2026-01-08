@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect, Suspense } from 'react';
+// Force Rebundle v2.4 - Cleaning Zone Titles clutter
 import { useStore } from '@/store/index';
 // Eager load Dashboard for LCP
 import { DashboardView } from '@/views/DashboardView';
@@ -184,42 +185,24 @@ const GameContent = () => {
     // Level up animation is now handled by AnimationQueueProvider
   }, [state.stats.level, prevLevel, isFirstLoad]);
 
-  // U52 Zone System - Check threshold on power changes
-  const currentPower = getTotalPower();
+  // U52 Zone System - Reactive Trigger
+  // Watches for when pendingZoneBoss actually changes (e.g. set by dungeon victory)
+  const prevPendingBoss = React.useRef(state.zone?.pendingZoneBoss);
+
   useEffect(() => {
-    if (isFirstLoad || zonePhase !== 'none') return;
-
-    // Only check if we have significant power (near Zone 2 at 1.25M)
-    if (currentPower < 1000000) return;
-
-    const result = checkZoneThreshold();
-    if (result.triggered && result.zoneId) {
-      setActiveZoneId(result.zoneId);
-      setZonePhase('unlock');
+    // If we have a pending boss AND it's a NEW pending boss (different from ref)
+    if (state.zone?.pendingZoneBoss && state.zone.pendingZoneBoss !== prevPendingBoss.current) {
+      // Only auto-trigger if we aren't already doing something else
+      if (zonePhase === 'none') {
+        setActiveZoneId(state.zone.pendingZoneBoss);
+        setZonePhase('unlock');
+      }
     }
-  }, [currentPower, isFirstLoad, zonePhase]);
+    // Update ref
+    prevPendingBoss.current = state.zone?.pendingZoneBoss;
+  }, [state.zone?.pendingZoneBoss, zonePhase]);
 
 
-
-  // --- AUDIO MANAGER ---
-  useEffect(() => {
-    // Randomize between the two available tracks
-    const tracks = ['/audio/music/Untitled.wav', '/audio/music/ambient_main.wav'];
-    const randomTrack = tracks[Math.floor(Math.random() * tracks.length)];
-
-    const bgMusic = new Audio(randomTrack);
-    bgMusic.loop = true;
-    bgMusic.volume = 0.35;
-
-    if (state.settings.musicEnabled) {
-      bgMusic.play().catch(() => { /* Auto-play blocked or file missing */ });
-    }
-
-    return () => {
-      bgMusic.pause();
-      bgMusic.currentTime = 0;
-    };
-  }, [state.settings.musicEnabled]);
 
   // Apply Performance Mode
   useEffect(() => {

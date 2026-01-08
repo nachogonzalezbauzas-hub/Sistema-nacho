@@ -26,6 +26,7 @@ const statColors: Record<StatType, { primary: string; bg: string; glow: string; 
 const defaultColor = { primary: '#3b82f6', bg: 'rgba(59,130,246,0.15)', glow: 'rgba(59,130,246,0.5)', border: 'rgba(59,130,246,0.6)' };
 
 import { rarityColors, frameRankColors } from '@/data/rarityColors';
+import { calculateItemPower } from '@/data/equipmentConstants';
 
 // Get icon for stat type
 const getStatIcon = (stat: StatType | undefined, size: number = 24) => {
@@ -630,7 +631,6 @@ export const UnifiedRewardOverlay: React.FC<UnifiedRewardOverlayProps> = ({ queu
                     </div>
                 )}
 
-                {/* Stats display */}
                 {currentReward.stats && currentReward.stats.length > 0 && (
                     <div style={{
                         display: 'flex',
@@ -666,6 +666,24 @@ export const UnifiedRewardOverlay: React.FC<UnifiedRewardOverlayProps> = ({ queu
                                 </div>
                             );
                         })}
+                    </div>
+                )}
+
+                {/* Power Score */}
+                {currentReward.stats && (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        borderTop: '1px solid rgba(255,255,255,0.1)',
+                        paddingTop: '16px',
+                        marginTop: '16px'
+                    }}>
+                        <Zap size={14} className="text-yellow-400" fill="currentColor" />
+                        <span className="text-sm font-bold text-yellow-400 uppercase tracking-wider">
+                            Power: {calculateItemPower({ baseStats: currentReward.stats, rarity: currentReward.rarity || 'common' }).toLocaleString()}
+                        </span>
                     </div>
                 )}
 

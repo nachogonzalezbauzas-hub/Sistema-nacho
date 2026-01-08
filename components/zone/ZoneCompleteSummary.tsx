@@ -12,6 +12,30 @@ export const ZoneCompleteSummary: React.FC<ZoneCompleteSummaryProps> = ({ zoneId
     const zoneInfo = getZoneInfo(zoneId);
     const visuals = zoneInfo.visuals;
 
+    // Helper to determine text color for buttons
+    const getContrastColor = (hexColor: string) => {
+        if (!hexColor) return '#000000';
+
+        // Remove hash
+        let hex = hexColor.replace('#', '');
+
+        // Handle shorthand hex (e.g. fff -> ffffff)
+        if (hex.length === 3) {
+            hex = hex.split('').map(char => char + char).join('');
+        }
+
+        // Convert to RGB
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+
+        if (isNaN(r) || isNaN(g) || isNaN(b)) return '#000000'; // Safety fallback
+
+        // Calculate brightness (YIQ formula)
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return yiq >= 128 ? '#000000' : '#ffffff';
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-md">
             {/* Background Visuals */}
@@ -66,7 +90,7 @@ export const ZoneCompleteSummary: React.FC<ZoneCompleteSummaryProps> = ({ zoneId
                     className="w-full py-4 font-bold rounded-xl transition-all flex items-center justify-center gap-2 uppercase tracking-widest hover:scale-105 active:scale-95"
                     style={{
                         backgroundColor: visuals.primaryColor,
-                        color: visuals.textColor,
+                        color: getContrastColor(visuals.primaryColor),
                         boxShadow: `0 0 20px ${visuals.primaryColor}60`
                     }}
                 >

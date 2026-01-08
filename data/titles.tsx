@@ -9,8 +9,6 @@ import {
   Eye, Globe, User
 } from 'lucide-react';
 import React from 'react';
-import { STATIC_TITLES, STATIC_FRAMES } from './staticCosmetics';
-import { ZONE_TITLES, ZONE_FRAMES } from './zoneRewards';
 import { SHADOW_DEFINITIONS } from './shadows';
 
 // --- SHADOW TITLES (Dynamically Generated) ---
@@ -827,44 +825,24 @@ export const BASE_FRAMES: FrameDefinition[] = [
   }
 ];
 
-// ===== SHOP COSMETICS (imported and added) =====
-// These need to be included so they appear in Profile after purchase
-
-// Shop cosmetics are now integrated into staticCosmetics (imported at top)
-// Shop cosmetics are now integrated into staticCosmetics (imported at top)
-
 // Rarity order for sorting
 const TITLE_RARITY_ORDER: Record<string, number> = {
-  common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, godlike: 6,
-  // Zone Rarities (Ascending Power)
-  magma: 7, abyssal: 8, verdant: 9, storm: 10,
-  lunar: 11, solar: 12, nebula: 13, singularity: 14, nova: 15,
-  cyber: 16, crystal: 17, ethereal: 18, crimson: 19, heavenly: 20,
-  antimatter: 21, temporal: 22, chaotic: 23, void: 24, omega: 25,
-  // High-Tier Legacy/Procedural (fallback)
-  primordial: 26, eternal: 27, divine: 28, cosmic: 29, infinite: 30
+  common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, godlike: 6
 };
 
 const FRAME_RARITY_ORDER: Record<string, number> = {
   // Standard
   common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, godlike: 6,
-  // Zone
-  magma: 7, abyssal: 8, verdant: 9, storm: 10,
-  lunar: 11, solar: 12, nebula: 13, singularity: 14, nova: 15,
-  cyber: 16, crystal: 17, ethereal: 18, crimson: 19, heavenly: 20,
-  antimatter: 21, temporal: 22, chaotic: 23, void: 24, omega: 25,
-  // High-Tier
-  primordial: 26, eternal: 27, divine: 28, cosmic: 29, infinite: 30,
   // Legacy
   C: 0, B: 1, A: 2, S: 3, SS: 4, SSS: 5
 };
 
-// Combine and export sorted arrays
-// WE INCLUDE ZONE TITLES/FRAMES HERE SO THEY ARE RECOGNIZED BY THE APP
-export const TITLES: TitleDefinition[] = [...BASE_TITLES, ...ZONE_TITLES, ...STATIC_TITLES, ...SHADOW_TITLES].sort((a, b) => {
+// Combine and export sorted arrays (PRUNED V2.0)
+// We only keep high-quality, manually defined titles and frames.
+export const TITLES: TitleDefinition[] = [...BASE_TITLES, ...SHADOW_TITLES].sort((a, b) => {
   return (TITLE_RARITY_ORDER[a.rarity] || 0) - (TITLE_RARITY_ORDER[b.rarity] || 0);
 });
 
-export const AVATAR_FRAMES: FrameDefinition[] = [...BASE_FRAMES, ...ZONE_FRAMES, ...STATIC_FRAMES].sort((a, b) => {
+export const AVATAR_FRAMES: FrameDefinition[] = [...BASE_FRAMES].sort((a, b) => {
   return (FRAME_RARITY_ORDER[a.rarity] || 0) - (FRAME_RARITY_ORDER[b.rarity] || 0);
 });

@@ -2,19 +2,17 @@ import { StateCreator } from 'zustand';
 import { LogEntry, Settings, CalendarDayData } from '@/types';
 import { createLog, isSameDay } from '@/store/utils';
 import { computeCalendar } from '@/utils/calendar';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { INITIAL_STATE } from '@/store/defaults';
 import { TITLES, AVATAR_FRAMES } from '@/data/titles';
-import { STATIC_TITLES, STATIC_FRAMES } from '@/data/staticCosmetics';
 import { generateSetEquipment } from '@/data/equipmentGenerator';
 import { ALL_DUNGEONS } from '@/dungeons/dungeonGenerator';
 import { Shadow } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 // generator import removed
-import { getZoneCosmeticDrop } from '@/data/staticCosmetics';
 
-const SHOP_TITLES = STATIC_TITLES.filter(t => t.sourceType === 'shop');
-const SHOP_FRAMES = STATIC_FRAMES.filter(f => f.sourceType === 'shop');
+const SHOP_TITLES = TITLES.filter(t => t.rarity === 'legendary' || t.rarity === 'mythic');
+const SHOP_FRAMES = AVATAR_FRAMES.filter(f => f.rarity === 'legendary' || f.rarity === 'mythic');
 
 export interface SystemSlice {
     addLog: (entry: Omit<LogEntry, 'id' | 'timestamp'>) => void;
@@ -143,12 +141,8 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
             // Logic for Daily Chest Title Drop (5% Chance)
             let dailyTitle: import('@/types').Title | undefined;
             if (Math.random() < 0.05) {
-                const estimatedZone = Math.max(1, Math.ceil(state.stats.level / 20));
-                const drop = getZoneCosmeticDrop(estimatedZone, 'daily');
-
-                if (drop && drop.type === 'title') {
-                    dailyTitle = { ...drop.item, icon: '🎁' } as any;
-                }
+                const title = TITLES[Math.floor(Math.random() * TITLES.length)];
+                dailyTitle = { ...title, icon: '🎁' } as any;
             }
 
             set((store) => {
@@ -236,7 +230,7 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
                 const nextState = { ...store.state };
                 const newStats = { ...nextState.stats };
 
-                // Max all stats
+                // Max all stats to 100
                 newStats.level = 100;
                 newStats.xpCurrent = 0;
                 newStats.xpForNextLevel = 100 + (100 * 25);
@@ -246,24 +240,23 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
                 newStats.intelligence = 100;
                 newStats.fortune = 100;
                 newStats.metabolism = 100;
+                newStats.streak = 365; // 1 year streak
 
                 // Set to final job class
                 newStats.jobClass = 'Shadow Monarch';
 
-                // Unlock ALL titles (Base + Shop)
-                const allTitleIds = [
-                    ...TITLES.map(t => t.id),
-                    ...SHOP_TITLES.map(t => t.id)
-                ];
+                // Unlock ALL titles (Base + Shadow Titles)
+                const allTitleIds = TITLES.map(t => t.id);
                 // Remove duplicates just in case
                 newStats.unlockedTitleIds = Array.from(new Set(allTitleIds)) as any;
 
-                // Unlock ALL frames (Base + Shop)
-                const allFrameIds = [
-                    ...AVATAR_FRAMES.map(f => f.id),
-                    ...SHOP_FRAMES.map(f => f.id)
-                ];
+                // Unlock ALL frames
+                const allFrameIds = AVATAR_FRAMES.map(f => f.id);
                 newStats.unlockedFrameIds = Array.from(new Set(allFrameIds)) as any;
+
+                // CLEANUP: Wipe custom lists to ensure no polluted/duplicate definitions exist
+                newStats.customTitles = [];
+                newStats.customFrames = [];
 
                 // Set season to SSS
                 nextState.currentSeason = {
@@ -276,12 +269,13 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
 
                 // 1 Million QP and Shards
                 nextState.questPoints = 1000000;
-                nextState.shards = 1000000;
+                nextState.shards = 10000000; // 10M shards for unlimited upgrades
+
+                // 100 Passive Points
+                nextState.passivePoints = 100;
 
                 // Add Shadow Monarch Equipment Set
                 const setEquipment = generateSetEquipment();
-                // Add to inventory (allow duplicates if user wants to dual wield or whatever, but maybe filter unique IDs if they collide?)
-                // generateSetEquipment returns new IDs usually.
                 nextState.inventory = [...nextState.inventory, ...setEquipment];
 
                 // Unlock All Shadows (Max Evolution)
@@ -296,7 +290,7 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
                             image: shadowData.image,
                             bonus: {
                                 ...shadowData.bonus,
-                                value: shadowData.bonus.value + 10 // Max evolution bonus
+                                value: shadowData.bonus.value + 20 // Max evolution bonus
                             },
                             isEquipped: false,
                             extractedAt: new Date().toISOString(),
@@ -309,13 +303,18 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
                 });
                 nextState.shadows = allShadows;
 
+                // CLEANUP: Reset zone rarities to standard to remove any procedural zone rarities
+                if (nextState.zone) {
+                    nextState.zone.unlockedRarities = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic', 'godlike'];
+                }
+
                 nextState.stats = newStats;
-                const log = createLog('Sistema', 'Código Secreto', 'TODO DESBLOQUEADO. TEMPORADA SSS. 1M QP & FRAGMENTOS. EQUIPO COMPLETO & SOMBRAS.');
+                const log = createLog('Sistema', 'Código Secreto: UNLOCKALL', '🌟 MODO DIOS ACTIVADO. TODO DESBLOQUEADO. LVL 100. 10M SHARDS. 1M QP. 100 PASSIVE POINTS. TODAS LAS SOMBRAS. EQUIPO COMPLETO.');
                 nextState.logs = [log, ...nextState.logs];
 
                 return { state: nextState };
             });
-            return { success: true, message: "EVERYTHING UNLOCKED! Season SSS, 1M QP, 1M Shards, Full Gear, All Shadows." };
+            return { success: true, message: "⚡ GOD MODE ACTIVATED! Everything unlocked, max stats, 10M shards, all shadows, full gear, max zones!" };
         }
 
         return { success: false, message: "Invalid Access Code" };

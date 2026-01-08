@@ -7,12 +7,14 @@ import { recomputeTitlesAndFrames } from './userSlice';
 import { calculateLevel, calculateLevelUp } from '@/utils/progression';
 import { BUFF_DEFINITIONS } from '@/data/buffs';
 import { generateDailyQuests, checkQuestCompletion } from '@/utils/questGenerator';
-import { GameStore } from '@/store/useStore';
+import type { GameStore } from '@/store/useStore';
 import { CORE_MISSIONS } from '@/data/coreMissions';
 import { DAILY_MISSION_POOL } from '@/data/dailyMissionPool';
 import { v4 as uuidv4 } from 'uuid';
+import { TITLES, AVATAR_FRAMES } from '@/data/titles';
 import { generateEquipment } from '@/data/equipmentGenerator';
-import { getZoneCosmeticDrop } from '@/data/staticCosmetics'; // NEW STATIC GENERATOR
+// Redundant import removed
+// NEW STATIC GENERATOR
 import { getHunterRank } from '@/utils/rankSystem';
 
 
@@ -191,7 +193,7 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
             } catch (error) {
                 console.error("CRITICAL ERROR in manualCompleteQuest:", error);
                 // Return unchanged state on error to prevent corruption, but maybe log it visibly
-                const logs = [createLog('Error', 'Sistema', `Crash en misión: ${error}`), ...store.state.logs];
+                const logs = [createLog('Sistema', 'Error', `Crash en misión: ${error}`), ...store.state.logs];
                 return { state: { ...store.state, logs } };
             }
         });
@@ -269,11 +271,10 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                 return activeDefs.reduce((acc, def) => acc * (def.xpMultiplier || 1), 1);
             })();
 
-            // Level Scaling for XP (10% increase per level)
-            const levelMultiplier = 1 + (newStats.level * 0.1);
-            // MISSION BOOST: Real life missions are 2.5x more valuable than before!
-            const missionBoostMultiplier = 2.5;
-            const earnedXp = Math.floor(mission.xpReward * streakMultiplier * buffMultiplier * levelMultiplier * missionBoostMultiplier);
+            // Level Scaling for XP (2% increase per level - REBALANCED V2.0)
+            const levelMultiplier = 1 + (newStats.level * 0.02);
+            // MISSION BOOST: Removed in V2.0 to prevent bloat. Relying on base XP buffs.
+            const earnedXp = Math.floor(mission.xpReward * streakMultiplier * buffMultiplier * levelMultiplier);
 
             newStats.xpCurrent += earnedXp;
 
@@ -316,7 +317,9 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
             if (mission.targetStat) {
                 const statKey = mission.targetStat.toLowerCase() as keyof UserStats;
                 if (typeof newStats[statKey] === 'number') {
-                    (newStats[statKey] as number) += 1;
+                    // REBALANCED V2.1: Exactly +1 stat point per mission
+                    const statGain = 1;
+                    (newStats[statKey] as number) += statGain;
                 }
             }
 
@@ -360,7 +363,7 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                     // Also estimate difficulty for scaling (Level * 5 approx)
                     const estimatedDifficulty = newStats.level * 5;
 
-                    const equipment = generateEquipment(undefined, undefined, newStats.level + 5, estimatedDifficulty, estimatedZone);
+                    const equipment = generateEquipment(undefined, undefined, newStats.level, estimatedDifficulty, estimatedZone);
                     if (equipment) {
                         nextState.inventory = [...nextState.inventory, equipment];
                         luckyRewardName = equipment.name;
@@ -403,38 +406,26 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
                 }
                 // Title (15%) - Adjusted to < 0.95
                 else if (typeRoll < 0.95) {
-                    // ... Title Logic ...
-                    const estimatedZone = Math.max(1, Math.min(20, Math.ceil(newStats.level / 5)));
-                    const drop = getZoneCosmeticDrop(estimatedZone, 'mission');
+                    const title = TITLES[Math.floor(Math.random() * TITLES.length)];
 
-                    if (drop && drop.type === 'title') {
-                        const title = drop.item;
-                        if (!newStats.unlockedTitleIds.includes(title.id)) {
-                            newStats.unlockedTitleIds = [...newStats.unlockedTitleIds, title.id];
+                    if (!newStats.unlockedTitleIds.includes(title.id)) {
+                        newStats.unlockedTitleIds = [...newStats.unlockedTitleIds, title.id];
 
-                            luckyRewardName = `Title: ${title.name}`;
-                            luckyRewardType = 'Title';
-                            logs.unshift(createLog('Sistema', 'Lucky Drop!', `¡Has desbloqueado Título: ${title.name}!`));
-                            // Animation handled by useCosmeticUnlockAnimations hook
-                        }
+                        luckyRewardName = `Title: ${title.name}`;
+                        luckyRewardType = 'Title';
+                        logs.unshift(createLog('Sistema', 'Lucky Drop!', `¡Has desbloqueado Título: ${title.name}!`));
                     }
                 }
                 // Frame (5%) - The Rest
                 else {
-                    const estimatedZone = Math.max(1, Math.min(20, Math.ceil(newStats.level / 5)));
-                    const drop = getZoneCosmeticDrop(estimatedZone, 'mission');
+                    const frame = AVATAR_FRAMES[Math.floor(Math.random() * AVATAR_FRAMES.length)];
 
-                    if (drop && drop.type === 'frame') {
-                        // ... Frame Logic ...
-                        const frame = drop.item;
-                        if (!newStats.unlockedFrameIds.includes(frame.id)) {
-                            newStats.unlockedFrameIds = [...newStats.unlockedFrameIds, frame.id];
+                    if (!newStats.unlockedFrameIds.includes(frame.id)) {
+                        newStats.unlockedFrameIds = [...newStats.unlockedFrameIds, frame.id];
 
-                            luckyRewardName = `Frame: ${frame.name}`;
-                            luckyRewardType = 'Frame';
-                            logs.unshift(createLog('Sistema', 'Lucky Drop!', `¡Has descubierto un Marco Raro: ${frame.name}!`));
-                            // Animation handled by useCosmeticUnlockAnimations hook
-                        }
+                        luckyRewardName = `Frame: ${frame.name}`;
+                        luckyRewardType = 'Frame';
+                        logs.unshift(createLog('Sistema', 'Lucky Drop!', `¡Has descubierto un Marco Raro: ${frame.name}!`));
                     }
                 }
             }
@@ -523,32 +514,20 @@ export const createMissionSlice: StateCreator<GameStore, [], [], MissionSlice> =
 
                 } else if (bonusRoll < 0.99) {
                     // 9% Chance: Title
-                    const estimatedZone = Math.max(1, Math.min(20, Math.ceil(newStats.level / 5)));
-                    const drop = getZoneCosmeticDrop(estimatedZone);
+                    const title = TITLES[Math.floor(Math.random() * TITLES.length)];
+                    bonusLog = `¡Increíble! Desbloqueaste Título: ${title.name}`;
 
-                    if (drop && drop.type === 'title') {
-                        const title = drop.item;
-                        bonusLog = `¡Increíble! Desbloqueaste Título: ${title.name}`;
-                        // Animation handled by useCosmeticUnlockAnimations hook
-
-                        if (!newStats.unlockedTitleIds.includes(title.id)) {
-                            newStats.unlockedTitleIds = [...newStats.unlockedTitleIds, title.id];
-                        }
+                    if (!newStats.unlockedTitleIds.includes(title.id)) {
+                        newStats.unlockedTitleIds = [...newStats.unlockedTitleIds, title.id];
                     }
 
                 } else {
                     // 1% Chance: Frame
-                    const estimatedZone = Math.max(1, Math.min(20, Math.ceil(newStats.level / 5)));
-                    const drop = getZoneCosmeticDrop(estimatedZone);
+                    const frame = AVATAR_FRAMES[Math.floor(Math.random() * AVATAR_FRAMES.length)];
+                    bonusLog = `¡Mítico! Marco Hallado: ${frame.name}`;
 
-                    if (drop && drop.type === 'frame') {
-                        const frame = drop.item;
-                        bonusLog = `¡Mítico! Marco Hallado: ${frame.name}`;
-                        // Animation handled by useCosmeticUnlockAnimations hook
-
-                        if (!newStats.unlockedFrameIds.includes(frame.id)) {
-                            newStats.unlockedFrameIds = [...newStats.unlockedFrameIds, frame.id];
-                        }
+                    if (!newStats.unlockedFrameIds.includes(frame.id)) {
+                        newStats.unlockedFrameIds = [...newStats.unlockedFrameIds, frame.id];
                     }
                 }
 

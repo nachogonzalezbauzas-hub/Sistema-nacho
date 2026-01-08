@@ -15,16 +15,12 @@ interface TitlesTabProps {
 }
 
 export const TitlesTab: React.FC<TitlesTabProps> = ({ stats, onEquipTitle, language, maxReachedFloor }) => {
-    const allTitles = [...TITLES, ...(stats.customTitles || [])];
+    const allTitles = [...TITLES, ...(stats.customTitles || [])].filter(t => !t.id.startsWith('zone_'));
     const unlockedTitles = allTitles.filter(t => stats.unlockedTitleIds.includes(t.id));
-    const lockedTitles = TITLES.filter(t => !stats.unlockedTitleIds.includes(t.id));
+    const lockedTitles = TITLES.filter(t => !stats.unlockedTitleIds.includes(t.id) && !t.id.startsWith('zone_'));
 
     const rarityOrder: TitleRarity[] = [
-        'common', 'uncommon', 'rare', 'epic', 'legendary', 'mythic', 'godlike', 'celestial', 'transcendent',
-        'primordial', 'eternal', 'divine', 'cosmic', 'infinite',
-        // Zone Rarities
-        'magma', 'abyssal', 'verdant', 'storm', 'lunar', 'solar', 'nebula', 'singularity', 'nova',
-        'cyber', 'crystal', 'ethereal', 'crimson', 'heavenly', 'antimatter', 'temporal', 'chaotic', 'void', 'omega'
+        'godlike', 'mythic', 'legendary', 'epic', 'rare', 'uncommon', 'common'
     ];
 
     const groupByRarity = (titles: Title[]) => {
@@ -43,7 +39,7 @@ export const TitlesTab: React.FC<TitlesTabProps> = ({ stats, onEquipTitle, langu
 
     const renderTitleGroup = (titles: Title[], rarity: TitleRarity, isUnlocked: boolean) => (
         <div key={rarity} className="space-y-2 mb-6">
-            <h4 className={`text-[10px] font-black uppercase tracking-widest opacity-60 pl-1 ${rarityStyles[rarity].textColor.replace('text-', 'text-')}`}>
+            <h4 className={`text-[10px] font-black uppercase tracking-widest opacity-60 pl-1 ${rarityStyles[rarity]?.textColor || 'text-slate-400'}`}>
                 {t(`rarity_${rarity.toLowerCase()}` as any, language)}
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">

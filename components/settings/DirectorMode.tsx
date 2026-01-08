@@ -11,7 +11,7 @@ interface DirectorModeProps {
 }
 
 export const DirectorMode: React.FC<DirectorModeProps> = ({ isOpen, onClose, onNavigate }) => {
-    const { addEquipment, debugResetTitles } = useStore();
+    const { state, addEquipment, debugResetTitles, debugSetStats } = useStore();
 
     if (!isOpen) return null;
 
@@ -155,6 +155,20 @@ export const DirectorMode: React.FC<DirectorModeProps> = ({ isOpen, onClose, onN
                                 <div className="flex flex-col items-start gap-1">
                                     <span className="text-xs font-bold text-green-400">Export Save</span>
                                     <span className="text-[10px] text-slate-500 font-mono">Download local save file</span>
+                                </div>
+                            </Button>
+
+                            <Button
+                                variant="secondary"
+                                onClick={() => {
+                                    const current = state.stats.passivePoints || 0;
+                                    debugSetStats({ passivePoints: current + 5 });
+                                }}
+                                className="justify-start h-auto py-4 hover:border-pink-500 hover:bg-pink-950/30"
+                            >
+                                <div className="flex flex-col items-start gap-1">
+                                    <span className="text-xs font-bold text-pink-400">Grant +5 Skill Points</span>
+                                    <span className="text-[10px] text-slate-500 font-mono">Retroactive reward fix</span>
                                 </div>
                             </Button>
 
