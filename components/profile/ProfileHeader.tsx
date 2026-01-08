@@ -182,7 +182,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                                 <div className="mt-2 text-cyan-500">AUTH_STATUS: ENCRYPTED</div>
                             </div>
                             <div className="absolute bottom-10 right-4 font-mono text-[8px] text-blue-500/50">
-                                SYSTEM_v2.6_STABLE
+                                SYSTEM_v2.7_STABLE
                             </div>
                             {/* Scanning Line */}
                             <motion.div
