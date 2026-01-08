@@ -42,6 +42,7 @@ const JobChangeView = React.lazy(() => import('./views/JobChangeView').then(m =>
 import { ZoneUnlockAnimation } from '@/components/zone/ZoneUnlockAnimation';
 import { ZoneBossFight } from '@/components/zone/ZoneBossFight';
 import { ZoneCompleteSummary } from '@/components/zone/ZoneCompleteSummary';
+import { SystemCalibration } from '@/components/onboarding/SystemCalibration';
 
 // Animation and Audio observer component - must be inside AnimationQueueProvider
 const AnimationObserver = () => {
@@ -375,6 +376,8 @@ const GameContent = () => {
           onNavigate={setCurrentTab}
           onAddMission={() => setCurrentTab('Misiones')}
         />
+
+        <SystemCalibration />
 
         {/* U52 Zone System Overlays */}
         {zonePhase === 'unlock' && activeZoneId && (

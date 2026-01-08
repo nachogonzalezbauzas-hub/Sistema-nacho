@@ -26,6 +26,7 @@ export interface SystemSlice {
     setLanguage: (lang: 'en' | 'es') => void;
     queueReward: (reward: import('@/types').RewardItem) => void;
     checkDailyShopRefresh: () => void;
+    completeOnboarding: (objectives: { mainGoal: string; focusStat: string }) => void;
 }
 
 export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (set, get) => ({
@@ -318,6 +319,22 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
         }
 
         return { success: false, message: "Invalid Access Code" };
+    },
+    completeOnboarding: (objectives) => {
+        set((store) => ({
+            state: {
+                ...store.state,
+                onboardingCompleted: true,
+                userObjectives: {
+                    ...objectives,
+                    calibratedAt: new Date().toISOString()
+                },
+                logs: [
+                    createLog('Sistema', 'Calibración Completada', 'Sincronización con el Jugador establecida. Objetivos fijados.'),
+                    ...store.state.logs
+                ]
+            }
+        }));
     }
 });
 

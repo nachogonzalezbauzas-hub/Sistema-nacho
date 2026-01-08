@@ -92,5 +92,13 @@ export interface AppState {
 
     // U52 Era System
     zone: import('./core').ZoneState;
+
+    // U54 Onboarding
+    onboardingCompleted?: boolean;
+    userObjectives?: {
+        mainGoal: string;
+        focusStat: string;
+        calibratedAt: string;
+    };
 }
 

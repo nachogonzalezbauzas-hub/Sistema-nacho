@@ -156,6 +156,14 @@ export const INITIAL_STATE: AppState = {
         zoneGuardiansDefeated: [],
         unlockedRarities: ['common', 'uncommon', 'rare', 'epic', 'legendary'],
         pendingZoneBoss: null
+    },
+
+    // U54 Onboarding
+    onboardingCompleted: false,
+    userObjectives: {
+        mainGoal: '',
+        focusStat: '',
+        calibratedAt: ''
     }
 };
 

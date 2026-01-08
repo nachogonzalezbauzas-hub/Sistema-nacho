@@ -49,9 +49,16 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
 
     // Combined rotation: base flip + interactive tilt
+    // Simplified: Disable tilt when flipped or during transition to avoid "mirroring" glitches
     const combinedRotateY = useTransform(rotateY, (rY) => {
         const tiltNum = parseFloat(rY.toString());
-        return isFlipped ? 180 - tiltNum : tiltNum;
+        if (isFlipped) return 180; // Fix at 180 when flipped to avoid weirdness
+        return tiltNum;
+    });
+
+    const combinedRotateX = useTransform(rotateX, (rX) => {
+        if (isFlipped) return 0;
+        return rX;
     });
 
     // Holographic sheen position
@@ -157,9 +164,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 className="relative w-full h-full preserve-3d"
                 style={{
                     transformStyle: 'preserve-3d',
-                    rotateX,
-                    rotateY: combinedRotateY
                 }}
+                animate={{
+                    rotateY: isFlipped ? 180 : 0,
+                    rotateX: isFlipped ? 0 : parseFloat(rotateX.get().toString())
+                }}
+                transition={{ type: 'spring', damping: 20, stiffness: 100 }}
             >
                 {/* FRONT FACE */}
                 <div
@@ -362,21 +372,20 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                             </div>
 
                             <div className="grid grid-cols-2 gap-6 relative z-10 h-full content-center">
-                                {/* Guild Info */}
+                                {/* Personalized Data */}
                                 <div className="space-y-1">
-                                    <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">{lang.affiliatedGuild}</div>
-                                    <div className="text-xl font-black text-white tracking-wider flex items-center gap-2">
-                                        <Shield className="w-4 h-4 text-purple-400" />
-                                        AHJIN
+                                    <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Calibration Objective</div>
+                                    <div className="text-sm font-black text-cyan-400 tracking-wider">
+                                        {(stats as any).userObjectives?.mainGoal || 'SYSTEM SYNCHRONIZATION PENDING'}
                                     </div>
-                                    <div className="text-[9px] text-slate-500 font-mono">{lang.masterRank}</div>
+                                    <div className="text-[9px] text-slate-500 font-mono">PRIMARY_DIRECTIVE</div>
                                 </div>
 
                                 {/* Awakening Date */}
                                 <div className="space-y-1">
-                                    <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">{lang.awakenedDate}</div>
-                                    <div className="text-lg font-mono text-cyan-300">
-                                        {stats.lastActiveDate ? new Date(stats.lastActiveDate).toLocaleDateString() : lang.unknown}
+                                    <div className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Calibrated At</div>
+                                    <div className="text-lg font-mono text-white/80">
+                                        {(stats as any).userObjectives?.calibratedAt ? new Date((stats as any).userObjectives.calibratedAt).toLocaleDateString() : 'N/A'}
                                     </div>
                                 </div>
 
