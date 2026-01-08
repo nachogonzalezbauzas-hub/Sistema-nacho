@@ -369,6 +369,7 @@ const GameContent = () => {
         setIsGateOpen={setIsGateOpen}
         state={state}
         onClearRewards={clearRewards}
+        isOnboarding={!state.onboardingCompleted}
       >
         <Suspense fallback={<LoadingFallback />}>
           {renderContent()}

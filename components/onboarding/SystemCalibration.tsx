@@ -227,8 +227,8 @@ export const SystemCalibration: React.FC = () => {
                             >
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-end">
-                                        <label className="text-xs font-black text-blue-400 uppercase tracking-widest">Primary Directive</label>
-                                        <span className="text-[9px] font-mono text-slate-500">CHOOSE YOUR PATH</span>
+                                        <label className="text-xs font-black text-blue-400 uppercase tracking-widest">MAIN OBJECTIVE</label>
+                                        <span className="text-[9px] font-mono text-slate-500">DEFINE GOAL</span>
                                     </div>
 
                                     <div className="space-y-3">
@@ -273,8 +273,8 @@ export const SystemCalibration: React.FC = () => {
                             >
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-end">
-                                        <label className="text-xs font-black text-blue-400 uppercase tracking-widest">Mana Resonance</label>
-                                        <span className="text-[9px] font-mono text-slate-500">SELECT FOCUS ATTRIBUTE</span>
+                                        <label className="text-xs font-black text-blue-400 uppercase tracking-widest">TRAINING PRIORITY</label>
+                                        <span className="text-[9px] font-mono text-slate-500">SELECT INITIAL FOCUS</span>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3">
