@@ -96,14 +96,18 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     };
 
     return (
-        <div className="relative mt-8 mb-8 perspective-1000 h-[380px] sm:h-[340px]">
+        <div className="relative mt-4 mb-4 perspective-1000 h-[420px] sm:h-[360px]">
             <motion.div
-                className="relative w-full h-full transition-transform duration-700 preserve-3d"
+                className="relative w-full h-full preserve-3d"
                 animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
                 style={{ transformStyle: 'preserve-3d' }}
             >
                 {/* FRONT FACE */}
-                <div className="absolute inset-0 backface-hidden">
+                <div
+                    className="absolute inset-0 backface-hidden"
+                    style={{ WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(1px)' }}
+                >
                     <div className="w-full h-full relative bg-[#0a0f1e] rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl group flex flex-col">
 
                         {/* Background Texture - Hex Pattern */}
@@ -211,7 +215,10 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 {/* BACK FACE */}
                 <div
                     className={`absolute inset-0 backface-hidden ${isFlipped ? 'pointer-events-auto z-20' : 'pointer-events-none z-0'}`}
-                    style={{ transform: 'rotateY(180deg)' }}
+                    style={{
+                        WebkitBackfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg) translateZ(1px)'
+                    }}
                 >
                     <div className="w-full h-full relative bg-[#0a0f1e] rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl flex flex-col">
                         {/* Header */}
