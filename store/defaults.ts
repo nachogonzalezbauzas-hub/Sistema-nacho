@@ -28,7 +28,8 @@ export const INITIAL_STATS: UserStats = {
     buffs: [],
     passives: {},
     pets: [],
-    activePetId: null
+    activePetId: null,
+    name: 'Sung Jin-Woo'
 };
 
 export const INITIAL_HEALTH_SUMMARY: HealthSummary = {

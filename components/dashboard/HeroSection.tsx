@@ -98,7 +98,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ stats, seasonProgress,
                                         className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter drop-shadow-[0_0_20px_rgba(59,130,246,0.6)]"
                                         style={{ fontFamily: 'Impact, sans-serif', WebkitTextStroke: '1px rgba(59,130,246,0.5)' }}
                                     >
-                                        Sung Jin-Woo
+                                        {stats.name || 'Sung Jin-Woo'}
                                     </motion.h1>
                                 </div>
 

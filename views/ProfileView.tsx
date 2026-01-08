@@ -35,8 +35,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ stats, effectiveStats,
   // Local Profile State (Name & Avatar)
   const [profile, setProfile] = useState(() => {
     const saved = localStorage.getItem('hunterProfile');
-    return saved ? JSON.parse(saved) : { name: 'Sung Jin-Woo', avatar: 'default' };
+    const parsed = saved ? JSON.parse(saved) : { name: stats.name || 'Sung Jin-Woo', avatar: 'default' };
+    return { ...parsed, name: stats.name || parsed.name };
   });
+
+  // Keep local profile name in sync with prop for editing
+  useEffect(() => {
+    if (stats.name && stats.name !== profile.name) {
+      setProfile(prev => ({ ...prev, name: stats.name }));
+    }
+  }, [stats.name]);
 
   useEffect(() => {
     localStorage.setItem('hunterProfile', JSON.stringify(profile));

@@ -336,7 +336,7 @@ export const createSystemSlice: StateCreator<GameStore, [], [], SystemSlice> = (
             // 2. Create Initial Body Record
             const newRecord: import('@/types').BodyRecord = {
                 id: uuidv4(),
-                date: dateStr,
+                date: now.toISOString(),
                 weight: data.weight,
                 sleepHours: data.sleepHours,
                 notes: 'System Initialization Sync',

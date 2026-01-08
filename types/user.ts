@@ -75,6 +75,9 @@ export interface UserStats {
     // U50 - Pets
     pets: import('./pets').Pet[];
     activePetId: string | null;
+
+    // U54 - Profile
+    name: string;
 }
 
 // --- LOGS ---
