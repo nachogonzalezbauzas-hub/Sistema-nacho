@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion';
 import { UserStats, AvatarFrame, Title } from '@/types';
 import { AvatarOrb, rarityStyles } from '@/components';
 import { AVATAR_PRESETS } from './EditProfileModal';
@@ -37,6 +37,56 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     }, [stats.avatarId]);
 
     const xpPercent = Math.min(100, (stats.xpCurrent / stats.xpForNextLevel) * 100);
+
+    // --- SSS-RANK TILT LOGIC ---
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
+
+    const mouseXSpring = useSpring(x);
+    const mouseYSpring = useSpring(y);
+
+    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+    // Combined rotation: base flip + interactive tilt
+    const combinedRotateY = useTransform(rotateY, (rY) => {
+        const tiltNum = parseFloat(rY.toString());
+        return isFlipped ? 180 - tiltNum : tiltNum;
+    });
+
+    // Holographic sheen position
+    const sheenX = useTransform(mouseXSpring, [-0.5, 0.5], ["0%", "100%"]);
+    const sheenOpacity = useTransform(mouseXSpring, [-0.5, 0.5], [0.1, 0.3]);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const width = rect.width;
+        const height = rect.height;
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const xPct = (mouseX / width) - 0.5;
+        const yPct = (mouseY / height) - 0.5;
+        x.set(xPct);
+        y.set(yPct);
+    };
+
+    const handleMouseLeave = () => {
+        x.set(0);
+        y.set(0);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const touch = e.touches[0];
+        const width = rect.width;
+        const height = rect.height;
+        const touchX = touch.clientX - rect.left;
+        const touchY = touch.clientY - rect.top;
+        const xPct = (touchX / width) - 0.5;
+        const yPct = (touchY / height) - 0.5;
+        x.set(xPct);
+        y.set(yPct);
+    };
 
     // Determine Hunter Rank based on Level or Total Power (Simulation)
     const hunterRank = totalPower > 1000000 ? 'S' : totalPower > 500000 ? 'A' : totalPower > 100000 ? 'B' : totalPower > 20000 ? 'C' : 'E';
@@ -96,12 +146,20 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
     };
 
     return (
-        <div className="relative mt-4 mb-4 perspective-1000 h-[420px] sm:h-[360px]">
+        <div
+            className="relative mt-4 mb-4 perspective-1000 h-[420px] sm:h-[360px] group/card-container"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleMouseLeave}
+        >
             <motion.div
                 className="relative w-full h-full preserve-3d"
-                animate={{ rotateY: isFlipped ? 180 : 0 }}
-                transition={{ duration: 0.6, ease: "easeInOut" }}
-                style={{ transformStyle: 'preserve-3d' }}
+                style={{
+                    transformStyle: 'preserve-3d',
+                    rotateX,
+                    rotateY: combinedRotateY
+                }}
             >
                 {/* FRONT FACE */}
                 <div
@@ -116,8 +174,47 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                             backgroundSize: '20px 20px'
                         }}></div>
 
+                        {/* SSS-RANK HUD ELEMENTS */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
+                            <div className="absolute top-10 left-4 font-mono text-[6px] text-blue-400 space-y-1">
+                                <div>LAT: 37.5665° N</div>
+                                <div>LNG: 126.9780° E</div>
+                                <div className="mt-2 text-cyan-500">AUTH_STATUS: ENCRYPTED</div>
+                            </div>
+                            <div className="absolute bottom-10 right-4 font-mono text-[8px] text-blue-500/50">
+                                SYSTEM_v2.6_STABLE
+                            </div>
+                            {/* Scanning Line */}
+                            <motion.div
+                                animate={{ top: ['0%', '100%'] }}
+                                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/30 to-transparent"
+                            />
+                        </div>
+
                         {/* Holographic Sheen Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                        <motion.div
+                            style={{
+                                background: `linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 55%, transparent 100%)`,
+                                backgroundSize: '250% 250%',
+                                x: sheenX,
+                                opacity: sheenOpacity
+                            }}
+                            className="absolute inset-0 mix-blend-overlay pointer-events-none z-20"
+                        />
+
+                        {/* Rank-based Energy Border */}
+                        {(hunterRank === 'S' || hunterRank === 'A') && (
+                            <div className="absolute inset-0 z-0 p-[1px] pointer-events-none">
+                                <div className="w-full h-full rounded-2xl overflow-hidden relative">
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent,rgba(59,130,246,0.5),rgba(34,211,238,0.8),rgba(59,130,246,0.5),transparent)]"
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         {/* HEADER STRIP */}
                         <div className="bg-slate-900/80 border-b border-slate-700/50 p-4 flex justify-between items-center relative z-10 backdrop-blur-sm shrink-0">
@@ -201,12 +298,12 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         </div>
 
                         {/* BOTTOM XP STRIP */}
-                        <div className="relative h-1.5 bg-slate-950 border-t border-slate-800 shrink-0">
+                        <div className="relative h-2 bg-slate-950 border-t border-slate-800 shrink-0">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${xpPercent}%` }}
                                 transition={{ duration: 1.5, ease: "easeOut" }}
-                                className="h-full bg-gradient-to-r from-blue-600 to-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)]"
+                                className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600 shadow-[0_0_15px_rgba(34,211,238,0.6)]"
                             />
                         </div>
                     </div>
@@ -220,7 +317,30 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                         transform: 'rotateY(180deg) translateZ(1px)'
                     }}
                 >
-                    <div className="w-full h-full relative bg-[#0a0f1e] rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl flex flex-col">
+                    <div className="w-full h-full relative bg-[#0a0f1e] rounded-2xl overflow-hidden border border-slate-700/50 shadow-2xl flex flex-col group/back">
+                        {/* SSS-RANK HUD ELEMENTS (BACK) */}
+                        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
+                            <div className="absolute top-20 right-10 flex gap-2">
+                                {[...Array(3)].map((_, i) => (
+                                    <motion.div
+                                        key={i}
+                                        animate={{ height: [4, 12, 4] }}
+                                        transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                                        className="w-1 bg-cyan-500/50 rounded-full"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Holographic Sheen Effect (BACK) */}
+                        <motion.div
+                            style={{
+                                background: `linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 45%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.2) 55%, transparent 100%)`,
+                                backgroundSize: '250% 250%',
+                                x: sheenX,
+                            }}
+                            className="absolute inset-0 mix-blend-soft-light pointer-events-none z-20 opacity-30"
+                        />
                         {/* Header */}
                         <div className="bg-slate-900/80 border-b border-slate-700/50 p-4 flex justify-between items-center relative z-10 backdrop-blur-sm shrink-0">
                             <div className="flex items-center gap-2">
